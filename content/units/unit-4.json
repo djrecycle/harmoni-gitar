@@ -1,0 +1,52 @@
+{
+  "slug": "unit-4",
+  "order": 4,
+  "title": "Lagu",
+  "color": "#be185d",
+  "description": "Walzer, Anglaise, Walts, Gallop, Spagnoletta, Minuet in G.",
+  "lessons": [
+    {
+      "slug": "walzer-carulli",
+      "title": "Walzer · F. Carulli",
+      "kind": "piece",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "anglaise-carulli",
+      "title": "Anglaise · F. Carulli",
+      "kind": "piece",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "walts-calatayud",
+      "title": "Walts · B. Calatayud",
+      "kind": "piece",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "gallop-carcassi",
+      "title": "Gallop · M. Carcassi",
+      "kind": "piece",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "spagnoletta",
+      "title": "Spagnoletta · Anonim",
+      "kind": "piece",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "minuet-in-g",
+      "title": "Minuet in G · Anonim",
+      "kind": "piece",
+      "published": false,
+      "blocks": []
+    }
+  ],
+  "checkItems": []
+}

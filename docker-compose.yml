@@ -1,0 +1,78 @@
+# Harmoni Gitar: PostgreSQL + aplikasi (localhost).
+#
+#   cp .env.docker.example .env.docker      # lalu isi BETTER_AUTH_SECRET dan POSTGRES_PASSWORD
+#   docker compose --env-file .env.docker up -d --build
+#   docker compose --env-file .env.docker --profile tools run --rm tools                         # isi kurikulum
+#   docker compose --env-file .env.docker --profile tools run --rm tools npm run setup:teacher -- \
+#     --name "Pak Rangga" --email guru@contoh.com --password "kata-sandi-kuat"                   # akun guru pertama
+#
+# Database saja (aplikasi tetap dijalankan dengan `npm run dev` di komputer):
+#   docker compose --env-file .env.docker up -d db
+#
+# Port dan nama sengaja berbeda dari LMS Harmoni (3000 / 5432 / harmoni) agar keduanya bisa berjalan bersamaan.
+
+name: harmoni-gitar
+
+x-app-env: &app-env
+  DATABASE_URL: postgres://harmoni-gitar:${POSTGRES_PASSWORD:?Isi POSTGRES_PASSWORD di .env.docker}@db:5432/harmoni_gitar
+  BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Isi BETTER_AUTH_SECRET di .env.docker (openssl rand -base64 32)}
+  BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3001}
+  UPLOAD_DIR: /data/uploads
+  STORAGE_DRIVER: local
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: harmoni-gitar
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Isi POSTGRES_PASSWORD di .env.docker}
+      POSTGRES_DB: harmoni_gitar
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      # Hanya bisa diakses dari komputer ini; dipakai `npm run dev`.
+      - "127.0.0.1:${DB_PORT:-5433}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U harmoni-gitar -d harmoni_gitar"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      <<: *app-env
+      AUTO_MIGRATE: "1" # jalankan migrasi otomatis saat start
+    volumes:
+      - uploads:/data/uploads
+    ports:
+      # Ganti menjadi "${APP_PORT:-3001}:3001" agar HP di Wi-Fi yang sama bisa membuka aplikasi.
+      - "127.0.0.1:${APP_PORT:-3001}:3001"
+
+  # Skrip sekali jalan (isi kurikulum, buat akun guru). Hanya dijalankan manual.
+  tools:
+    profiles: ["tools"]
+    build:
+      context: .
+      target: builder
+    user: "1001:1001"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      <<: *app-env
+      HOME: /tmp
+    volumes:
+      - uploads:/data/uploads
+    command: ["npm", "run", "db:seed"]
+
+volumes:
+  pgdata:
+  uploads:

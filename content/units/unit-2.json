@@ -1,0 +1,31 @@
+{
+  "slug": "unit-2",
+  "order": 2,
+  "title": "Teknik 1",
+  "color": "#7c3aed",
+  "description": "Tangganada mayor & kromatik 2 oktaf, arpeggio mayor, latihan Mauro Giuliani.",
+  "lessons": [
+    {
+      "slug": "tangganada-2-oktaf",
+      "title": "Tangganada 2 Oktaf",
+      "kind": "technique",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "kromatik-arpeggio-mayor",
+      "title": "Kromatik & Arpeggio Mayor",
+      "kind": "technique",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "arpeggio-giuliani-1-5",
+      "title": "Arpeggio Mauro Giuliani No. 1–5",
+      "kind": "technique",
+      "published": false,
+      "blocks": []
+    }
+  ],
+  "checkItems": []
+}

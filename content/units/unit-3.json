@@ -1,0 +1,52 @@
+{
+  "slug": "unit-3",
+  "order": 3,
+  "title": "Etude 1",
+  "color": "#c2410c",
+  "description": "Enam etude: Küffner, Cano, Aguado, Sor, Carulli.",
+  "lessons": [
+    {
+      "slug": "allegretto-kuffner",
+      "title": "Allegretto · J. Küffner",
+      "kind": "etude",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "andantino-cano",
+      "title": "Andantino · A. Cano",
+      "kind": "etude",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "allegretto-aguado",
+      "title": "Allegretto · D. Aguado",
+      "kind": "etude",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "andante-sor",
+      "title": "Andante · F. Sor",
+      "kind": "etude",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "andante-carulli",
+      "title": "Andante · F. Carulli",
+      "kind": "etude",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "etude-aguado",
+      "title": "Etude · D. Aguado",
+      "kind": "etude",
+      "published": false,
+      "blocks": []
+    }
+  ],
+  "checkItems": []
+}

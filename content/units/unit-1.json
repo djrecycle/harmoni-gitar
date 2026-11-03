@@ -1,0 +1,142 @@
+{
+  "slug": "unit-1",
+  "order": 1,
+  "title": "Dasar-dasar",
+  "color": "#0f766e",
+  "description": "Anatomi gitar, posisi duduk, penjarian, petikan apoyando & tirando, notasi balok, dawai ① sampai ⑥, lagu duet.",
+  "lessons": [
+    {
+      "slug": "kenali-gitar",
+      "title": "Kenali Gitarmu",
+      "kind": "theory",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "posisi-duduk-penjarian",
+      "title": "Posisi Duduk & Penjarian",
+      "kind": "technique",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "posisi-blok",
+      "title": "Posisi Blok",
+      "kind": "technique",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "petikan-apoyando",
+      "title": "Petikan Apoyando",
+      "kind": "technique",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "apoyando-latihan-4-5",
+      "title": "Apoyando: Latihan 4 & 5",
+      "kind": "technique",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "apoyando-tirando",
+      "title": "Lanjutan Apoyando & Tirando",
+      "kind": "technique",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "membaca-notasi-balok",
+      "title": "Membaca Notasi Balok",
+      "kind": "theory",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "tanda-birama",
+      "title": "Latihan Tanda Birama",
+      "kind": "theory",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "dawai-1-2",
+      "title": "Dawai ① dan ②",
+      "kind": "technique",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "lagu-lightly-row-aura-lee",
+      "title": "Lagu: Lightly Row & Aura Lee",
+      "kind": "piece",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "latihan-5-duet",
+      "title": "Latihan 5: Duet",
+      "kind": "piece",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "dawai-3-4",
+      "title": "Dawai ③ dan ④",
+      "kind": "technique",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "lagu-moon-night",
+      "title": "Lagu: Moon Night",
+      "kind": "piece",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "dawai-5-6",
+      "title": "Dawai ⑤ dan ⑥",
+      "kind": "technique",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "petikan-rangkap",
+      "title": "Petikan Rangkap",
+      "kind": "technique",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "latihan-4",
+      "title": "Latihan 4",
+      "kind": "technique",
+      "published": false,
+      "blocks": []
+    },
+    {
+      "slug": "cek-unit-1",
+      "title": "Cek Unit 1",
+      "kind": "check",
+      "published": false,
+      "blocks": []
+    }
+  ],
+  "checkItems": [
+    "Menyebut bagian-bagian gitar",
+    "Duduk dengan posisi yang benar",
+    "Memahami simbol p i m a ch dan jari 1–4",
+    "Menemukan posisi blok",
+    "Memetik apoyando",
+    "Memetik tirando",
+    "Membaca nilai not dan tanda birama",
+    "Memainkan nada dawai ① ②",
+    "Memainkan nada dawai ③ ④",
+    "Memainkan nada dawai ⑤ ⑥",
+    "Petikan rangkap",
+    "Memainkan satu lagu duet"
+  ]
+}
