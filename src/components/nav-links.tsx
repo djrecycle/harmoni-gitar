@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Ellipsis, House, LayoutDashboard, LogOut, Settings, X } from "lucide-react";
+import { BookOpen, CalendarDays, Ellipsis, House, LayoutDashboard, LogOut, NotebookPen, Settings, Timer, Users, Waves, X } from "lucide-react";
 import { signOut } from "@/app/actions/auth";
 import { cn } from "@/lib/utils";
 import { useT } from "@/i18n/client";
@@ -17,9 +17,18 @@ type Item = { href: string; label: string; Icon: React.ComponentType<{ className
 const NAV: Record<"teacher" | "student", Item[]> = {
   teacher: [
     { href: "/guru", label: "Dashboard", Icon: LayoutDashboard, exact: true },
+    { href: "/guru/siswa", label: "Students", Icon: Users },
+    { href: "/guru/jadwal", label: "Schedule", Icon: CalendarDays },
     { href: "/guru/pengaturan", label: "Settings", Icon: Settings },
   ],
-  student: [{ href: "/siswa", label: "Home", Icon: House, exact: true }],
+  student: [
+    { href: "/siswa", label: "Home", Icon: House, exact: true },
+    { href: "/siswa/belajar", label: "Learn", Icon: BookOpen },
+    { href: "/siswa/latihan", label: "Practice", Icon: Timer },
+    { href: "/siswa/jurnal", label: "Journal", Icon: NotebookPen },
+    { href: "/siswa/jadwal", label: "Schedule", Icon: CalendarDays },
+    { href: "/siswa/metronom", label: "Metronome", Icon: Waves },
+  ],
 };
 
 /** Bottom bar on phones: up to this many items, the rest go into "Menu". */

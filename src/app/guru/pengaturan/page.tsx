@@ -16,7 +16,7 @@ export default async function SettingsPage() {
   return (
     <>
       <PageHeader title={t("Settings")} description={t("Studio profile, default practice timer, and features.")} />
-      <SettingsForm settings={settings} />
+      <SettingsForm key={JSON.stringify(settings)} settings={settings} />
     </>
   );
 }

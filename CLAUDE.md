@@ -8,7 +8,7 @@ Aplikasi web les gitar klasik privat milik Pak Rangga: siswa berlatih mandiri da
 
 ## Stack
 
-Sama dengan LMS Harmoni (https://github.com/djrecycle/LMS_Harmoni): Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, PostgreSQL 17 + Drizzle ORM, Better Auth (plugin `username` + `admin`), Docker Compose. Tambahan: alphaTab (notasi + tab), `tone` (audio/metronom).
+Sama dengan LMS Harmoni (https://github.com/djrecycle/LMS_Harmoni): Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, PostgreSQL 17 + Drizzle ORM, Better Auth (plugin `username` + `admin`), Docker Compose. Tambahan: alphaTab (notasi + tab, Tahap 2), Web Audio API langsung untuk metronom/timer (`src/lib/audio.ts`), `react-markdown` untuk isi pelajaran.
 
 Next.js versi ini punya perubahan besar dari versi lama: baca dokumen di `node_modules/next/dist/docs/` sebelum menulis kode yang memakai API Next.
 

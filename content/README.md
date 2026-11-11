@@ -49,11 +49,16 @@ Satu file per unit.
 | `score` | `{ "piece": "<slug karya di content/pieces>" }` |
 | `checklist` | `{ "title": "…", "items": ["…", "…"] }` |
 | `quiz` | `{ "question": "…", "options": ["…"], "answer": 0 }` |
-| `tip` | `{ "markdown": "…" }` |
-| `focus` | `{ "markdown": "…" }` (hal yang diperhatikan saat berlatih) |
-| `target` | `{ "markdown": "…" }` (target tempo/kemampuan) |
+| `tip` | `{ "markdown": "…", "title": "…" }` (`title` opsional, bawaan "Tips") |
+| `focus` | `{ "markdown": "…", "title": "…" }` (hal yang diperhatikan saat berlatih; bawaan "Perhatian") |
+| `target` | `{ "markdown": "…", "title": "…" }` (target tempo/kemampuan; bawaan "Target") |
 
-Bentuk `data` di atas masih bisa berubah saat tampilan pelajaran dibuat; perbarui tabel ini bila berubah.
+Detail tambahan:
+- `checklist`: 1–30 butir; centang siswa disimpan per butir (urutan butir jangan diubah setelah dipakai siswa).
+- `quiz`: 2–6 pilihan, `answer` = indeks jawaban benar (mulai 0), `explain` opsional (tampil setelah benar). Jawaban tidak disimpan.
+- `score`: `{ "piece": "<slug>", "note": "…" }`. Sampai alphaTab tersedia (Tahap 2) yang tampil hanya `note`.
+
+Bentuk `data` divalidasi saat `npm run db:seed` (`src/lib/blocks.ts`): blok yang tidak sesuai jenisnya membuat seed gagal.
 
 ### Aturan pembaruan
 
@@ -63,5 +68,5 @@ Bentuk `data` di atas masih bisa berubah saat tampilan pelajaran dibuat; perbaru
 - Pelajaran yang dihapus dari file **tidak** dihapus dari database (kemajuan siswa ikut terhapus); skrip hanya
   memberi peringatan. Sembunyikan dengan `"published": false`.
 
-Status saat ini (Tahap 0): keempat unit baru berisi judul dan daftar pelajaran sesuai modul, plus 12 butir
-Cek Unit 1. Isi pelajaran (`blocks`) masih kosong dan semua pelajaran `published: false`.
+Status saat ini (Tahap 1): **Unit 1 lengkap** (17 pelajaran, semua `published: true`, plus 12 butir Cek Unit 1).
+Unit 2–4 baru berisi judul dan daftar pelajaran, semua `published: false`; isinya menyusul bersama notasi (Tahap 2).

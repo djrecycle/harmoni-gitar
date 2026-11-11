@@ -9,120 +9,928 @@
       "slug": "kenali-gitar",
       "title": "Kenali Gitarmu",
       "kind": "theory",
-      "published": false,
-      "blocks": []
+      "summary": "Mengenal bagian-bagian gitar, nomor dawai, dan perlengkapan latihan di rumah.",
+      "estimatedMinutes": 15,
+      "published": true,
+      "blocks": [
+        {
+          "type": "text",
+          "data": {
+            "markdown": "Di unit ini kamu mengenal gitar, duduk dengan benar, mengenal nama jari, lalu mulai memetik dan membaca not di semua dawai.\n\n## A · Anatomi gitar\nGitar klasik terdiri dari tiga bagian besar:\n\n- **Kepala** (*head*): tempat **penyetem** (*tuning pegs*) untuk mengencangkan dan mengendurkan dawai.\n- **Leher** (*neck*): di depannya ada **papan jari** (*fingerboard*) yang dibagi oleh **pembatas fret** (kawat logam). Di ujung atas leher ada **nut**, tempat dawai bertumpu.\n- **Badan** (*body*): ada **lubang suara** (*sound hole*) dan **jembatan** (*bridge*), tempat dawai diikat.\n\nLihat gambar anatomi gitar di modul cetak hal. 3."
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "markdown": "## B · Dawai gitar\nGitar punya 6 dawai, **dihitung dari bawah** (dawai yang paling dekat ke lantai saat kamu memegang gitar):\n\n| Dawai | Nada | Keterangan |\n|---|---|---|\n| ① | E (tinggi) | paling tipis |\n| ② | B | |\n| ③ | G | |\n| ④ | D | |\n| ⑤ | A | |\n| ⑥ | E (rendah) | paling tebal |"
+          }
+        },
+        {
+          "type": "tip",
+          "data": {
+            "markdown": "**E**ngkau **B**isa **G**itar **D**engan **A**syik, **E**nak! (dawai ① → ⑥: E B G D A E)",
+            "title": "Jembatan keledai"
+          }
+        },
+        {
+          "type": "checklist",
+          "data": {
+            "title": "C · Perangkat pendukung: centang yang sudah kamu siapkan di rumah",
+            "items": [
+              "Penyangga kaki (footstool)",
+              "Buku praktik gitar klasik (modul)",
+              "Kursi tanpa lengan",
+              "Standar musik (tempat buku)"
+            ]
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Dawai mana yang paling tipis?",
+            "options": [
+              "Dawai ①",
+              "Dawai ③",
+              "Dawai ⑥"
+            ],
+            "answer": 0,
+            "explain": "Dawai ① (E tinggi) paling tipis, dawai ⑥ (E rendah) paling tebal."
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Nada dawai ⑤ adalah…",
+            "options": [
+              "D",
+              "A",
+              "E"
+            ],
+            "answer": 1,
+            "explain": "E B G D A E: dawai ⑤ = A."
+          }
+        },
+        {
+          "type": "focus",
+          "data": {
+            "markdown": "Tunjuk di gitarmu: **penyetem**, **pembatas fret**, **lubang suara**, dan **jembatan**. Sebutkan nama bagian itu ke teman atau keluargamu.",
+            "title": "Ayo coba"
+          }
+        }
+      ]
     },
     {
       "slug": "posisi-duduk-penjarian",
       "title": "Posisi Duduk & Penjarian",
       "kind": "technique",
-      "published": false,
-      "blocks": []
+      "summary": "Duduk dengan benar dan mengenal nama jari tangan kanan (p i m a ch) dan tangan kiri (1–4).",
+      "estimatedMinutes": 20,
+      "published": true,
+      "blocks": [
+        {
+          "type": "text",
+          "data": {
+            "markdown": "## D · Posisi duduk\n- Duduk **tegap dan rileks** di ujung kursi tanpa lengan.\n- **Kaki kiri** di atas penyangga kaki (*footstool*).\n- Gitar diletakkan di **paha kiri**.\n- **Siku tangan kiri** santai di samping badan gitar.\n\nLihat gambar posisi duduk di modul cetak hal. 4."
+          }
+        },
+        {
+          "type": "checklist",
+          "data": {
+            "title": "Cek di cermin",
+            "items": [
+              "Bahu tidak naik",
+              "Punggung tidak bungkuk",
+              "Kepala gitar kira-kira setinggi mata",
+              "Kaki kiri di atas footstool"
+            ]
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "markdown": "## E · Penjarian\n### 1. Tangan kanan (memetik)\n| Simbol | Nama | Jari |\n|---|---|---|\n| **p** | pulgar | ibu jari |\n| **i** | indice | jari telunjuk |\n| **m** | medio | jari tengah |\n| **a** | anular | jari manis |\n| **ch** | chico | kelingking |\n\n### 2. Tangan kiri (menekan)\n| Angka | Jari |\n|---|---|\n| **0** | dawai terbuka (tidak ditekan) |\n| **1** | jari telunjuk |\n| **2** | jari tengah |\n| **3** | jari manis |\n| **4** | kelingking |"
+          }
+        },
+        {
+          "type": "tip",
+          "data": {
+            "markdown": "**Huruf** (p i m a) = tangan **kanan**. **Angka** (1 2 3 4) = tangan **kiri**.",
+            "title": "Ingat!"
+          }
+        },
+        {
+          "type": "focus",
+          "data": {
+            "markdown": "Teman menyebut huruf p, i, m, a atau angka 1–4. Angkat jari yang tepat secepat mungkin. Ganti peran setelah 10 kali.",
+            "title": "Permainan: Tebak jari"
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Huruf **m** pada notasi berarti…",
+            "options": [
+              "Jari tengah tangan kanan",
+              "Jari manis tangan kanan",
+              "Jari tengah tangan kiri"
+            ],
+            "answer": 0,
+            "explain": "m = medio = jari tengah tangan kanan."
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Angka **3** di dekat not berarti…",
+            "options": [
+              "Dawai ③",
+              "Jari manis tangan kiri",
+              "Fret 3 dengan jari telunjuk"
+            ],
+            "answer": 1,
+            "explain": "Angka biasa = jari tangan kiri. Nomor dalam lingkaran (③) baru berarti dawai."
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Ibu jari tangan kanan ditulis…",
+            "options": [
+              "i",
+              "a",
+              "p"
+            ],
+            "answer": 2
+          }
+        }
+      ]
     },
     {
       "slug": "posisi-blok",
       "title": "Posisi Blok",
       "kind": "technique",
-      "published": false,
-      "blocks": []
+      "summary": "Menemukan posisi blok: empat jari tangan kiri di empat fret berurutan.",
+      "estimatedMinutes": 20,
+      "published": true,
+      "blocks": [
+        {
+          "type": "text",
+          "data": {
+            "markdown": "## F · Posisi blok\nPosisi blok adalah letak jari telunjuk, tengah, manis, dan kelingking saat menekan dawai bersamaan, masing-masing pada fret-nya. **Nama posisi ditentukan oleh letak jari telunjuk.**\n\nContoh: **posisi V** berarti jari 1 di fret 5, jari 2 di fret 6, jari 3 di fret 7, jari 4 di fret 8."
+          }
+        },
+        {
+          "type": "focus",
+          "data": {
+            "markdown": "Jari 1, 2, 3, 4 **tidak boleh miring atau tidur**. Jari harus tegak lurus dan berdekatan dengan fret sebelah kanan.",
+            "title": "Perhatian"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "markdown": "### Latihan: carilah posisi blok berikut\n| No | Posisi blok | Dawai |\n|---|---|---|\n| 1 | IV | ⑤ |\n| 2 | VI | ② |\n| 3 | IX | ③ |\n| 4 | VII | ⑥ |\n| 5 | XI | ④ |\n| 6 | V | ① |\n\nLetakkan keempat jari, petik satu per satu dari jari 1 ke jari 4, lalu kembali."
+          }
+        },
+        {
+          "type": "checklist",
+          "data": {
+            "title": "Sudah bisa?",
+            "items": [
+              "Posisi IV di dawai ⑤",
+              "Posisi VI di dawai ②",
+              "Posisi IX di dawai ③",
+              "Posisi VII di dawai ⑥",
+              "Posisi XI di dawai ④",
+              "Posisi V di dawai ①"
+            ]
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Di posisi IV, jari telunjuk berada di fret…",
+            "options": [
+              "Fret 1",
+              "Fret 4",
+              "Fret 6"
+            ],
+            "answer": 1
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Di posisi VII, kelingking (jari 4) berada di fret…",
+            "options": [
+              "Fret 7",
+              "Fret 9",
+              "Fret 10"
+            ],
+            "answer": 2,
+            "explain": "Jari 1 di fret 7, jari 2 di 8, jari 3 di 9, jari 4 di 10."
+          }
+        },
+        {
+          "type": "tip",
+          "data": {
+            "markdown": "- Hitung fret dari kepala gitar: fret 1 paling dekat dengan nut.\n- Bidang tekan (titik di papan jari) biasanya ada di fret III, V, VII, IX, XII.",
+            "title": "Tips"
+          }
+        }
+      ]
     },
     {
       "slug": "petikan-apoyando",
       "title": "Petikan Apoyando",
       "kind": "technique",
-      "published": false,
-      "blocks": []
+      "summary": "Petikan bersandar untuk melodi, dengan jari i dan m bergantian.",
+      "estimatedMinutes": 25,
+      "published": true,
+      "blocks": [
+        {
+          "type": "text",
+          "data": {
+            "markdown": "## G · Petikan apoyando\n**Apoyando** = petikan bersandar: setelah memetik, jari bersandar pada dawai di atasnya. Dipakai untuk memainkan **melodi**.\n\n1. **Persiapan**: ujung jari menyentuh dawai.\n2. **Petik**: dorong dawai ke arah badan gitar.\n3. **Selesai**: jari berhenti di dawai berikutnya (dawai di atasnya)."
+          }
+        },
+        {
+          "type": "score",
+          "data": {
+            "piece": "apoyando-latihan-1-2",
+            "note": "Latihan 1–2 · dawai terbuka, petik bergantian i–m (modul cetak hal. 6). Notasi interaktif menyusul."
+          }
+        },
+        {
+          "type": "score",
+          "data": {
+            "piece": "apoyando-posisi-blok",
+            "note": "Cari posisi blok, lalu mainkan dengan petikan i–m apoyando (modul cetak hal. 6)."
+          }
+        },
+        {
+          "type": "focus",
+          "data": {
+            "markdown": "- Jari **i** dan **m** selalu **bergantian**: i–m–i–m, jangan memakai jari yang sama dua kali.\n- Pergelangan tangan kanan diam, yang bergerak hanya jari.\n- Dengarkan: setiap nada harus sama keras.",
+            "title": "Perhatikan"
+          }
+        },
+        {
+          "type": "checklist",
+          "data": {
+            "title": "Sudah bisa?",
+            "items": [
+              "Jari berhenti di dawai berikutnya setelah memetik",
+              "i dan m bergantian tanpa salah",
+              "Latihan 1 dawai terbuka",
+              "Latihan 2 dawai terbuka",
+              "Posisi blok dengan petikan i–m"
+            ]
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Apoyando dipakai untuk…",
+            "options": [
+              "Melodi",
+              "Akor/iringan",
+              "Menyetem gitar"
+            ],
+            "answer": 0
+          }
+        }
+      ]
     },
     {
       "slug": "apoyando-latihan-4-5",
       "title": "Apoyando: Latihan 4 & 5",
       "kind": "technique",
-      "published": false,
-      "blocks": []
+      "summary": "Latihan duet apoyando: kamu memainkan melodi, guru memainkan iringan.",
+      "estimatedMinutes": 25,
+      "published": true,
+      "blocks": [
+        {
+          "type": "text",
+          "data": {
+            "markdown": "Lanjutkan petikan apoyando dengan **Latihan 4 dan 5**. Latihan ini dimainkan berdua: **kamu memainkan melodi, guru memainkan iringan**."
+          }
+        },
+        {
+          "type": "score",
+          "data": {
+            "piece": "apoyando-latihan-4-5",
+            "note": "Latihan 4 & 5 (modul cetak hal. 7). Notasi interaktif menyusul."
+          }
+        },
+        {
+          "type": "tip",
+          "data": {
+            "markdown": "Sebelum mulai, hitung bersama guru “1 – 2 – 3 – 4” supaya kalian mulai bersamaan.",
+            "title": "Main berdua"
+          }
+        },
+        {
+          "type": "checklist",
+          "data": {
+            "title": "Sudah bisa?",
+            "items": [
+              "Latihan 4 sendiri, pelan",
+              "Latihan 4 bersama guru",
+              "Latihan 5 sendiri, pelan",
+              "Latihan 5 bersama guru"
+            ]
+          }
+        }
+      ]
     },
     {
       "slug": "apoyando-tirando",
       "title": "Lanjutan Apoyando & Tirando",
       "kind": "technique",
-      "published": false,
-      "blocks": []
+      "summary": "Lanjutan Latihan 5 dan mengenal petikan tirando untuk akor dan iringan.",
+      "estimatedMinutes": 25,
+      "published": true,
+      "blocks": [
+        {
+          "type": "score",
+          "data": {
+            "piece": "apoyando-latihan-5-lanjutan",
+            "note": "Latihan 5 (lanjutan) (modul cetak hal. 8)."
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "markdown": "## Petikan tirando\n**Tirando** (*al aire*) = petikan lepas: jari memetik lalu **lepas**, tidak bersandar pada dawai di atasnya. Dipakai untuk **akor atau iringan**, karena dawai lain tetap bebas berbunyi."
+          }
+        },
+        {
+          "type": "score",
+          "data": {
+            "piece": "tirando-latihan-1-5",
+            "note": "Latihan 1–5 · dawai terbuka dengan petikan tirando (modul cetak hal. 8)."
+          }
+        },
+        {
+          "type": "focus",
+          "data": {
+            "markdown": "Latih tirando dengan progresi akor mayor **E – A – B – E**. Tiap akor boleh 8, 6, atau 4 ketukan.",
+            "title": "Perhatian"
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Apa beda tirando dari apoyando?",
+            "options": [
+              "Jari tidak bersandar di dawai berikutnya",
+              "Dipetik dengan ibu jari saja",
+              "Lebih keras"
+            ],
+            "answer": 0,
+            "explain": "Tirando = petikan lepas; apoyando = petikan bersandar."
+          }
+        },
+        {
+          "type": "checklist",
+          "data": {
+            "title": "Sudah bisa?",
+            "items": [
+              "Latihan 5 (lanjutan)",
+              "Tirando dawai terbuka Latihan 1–5",
+              "Progresi E – A – B – E dengan tirando"
+            ]
+          }
+        }
+      ]
     },
     {
       "slug": "membaca-notasi-balok",
       "title": "Membaca Notasi Balok",
       "kind": "theory",
-      "published": false,
-      "blocks": []
+      "summary": "Kunci G, nama nada di paranada, nilai not, dan tanda istirahat.",
+      "estimatedMinutes": 25,
+      "published": true,
+      "blocks": [
+        {
+          "type": "text",
+          "data": {
+            "markdown": "## H · Membaca notasi balok\n### Kunci G & F\n- **Kunci G** untuk nada-nada tinggi. Musik gitar ditulis dengan kunci G.\n- **Kunci F** untuk nada-nada rendah.\n\n### Nama nada\nGaris paranada **dihitung dari bawah**. Ucapkan keras-keras **C D E F G A B C** sambil menunjuk not.\n\n### Nilai nada\n| Not | Nilai (dalam birama 4/4) |\n|---|---|\n| Not penuh | 4 ketukan |\n| Not 1/2 | 2 ketukan |\n| Not 1/4 | 1 ketukan |\n| Not 1/8 | ½ ketukan |\n\nSetiap not punya **tanda istirahat** (tanda diam) dengan nilai yang sama. Lihat gambarnya di modul cetak hal. 9."
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Not penuh bernilai berapa ketukan?",
+            "options": [
+              "1",
+              "2",
+              "4"
+            ],
+            "answer": 2
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Not 1/2 + not 1/4 = … ketukan",
+            "options": [
+              "2",
+              "3",
+              "1½"
+            ],
+            "answer": 1
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Dua not 1/8 = … ketukan",
+            "options": [
+              "1",
+              "2",
+              "½"
+            ],
+            "answer": 0
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Birama 4/4 berisi berapa not 1/4?",
+            "options": [
+              "2",
+              "3",
+              "4"
+            ],
+            "answer": 2
+          }
+        },
+        {
+          "type": "tip",
+          "data": {
+            "markdown": "Saat membaca not, tunjuk notnya dan sebut namanya keras-keras. Mata, mulut, dan jari belajar bersama.",
+            "title": "Tips"
+          }
+        }
+      ]
     },
     {
       "slug": "tanda-birama",
       "title": "Latihan Tanda Birama",
       "kind": "theory",
-      "published": false,
-      "blocks": []
+      "summary": "Tanda birama 4/4, 3/4, dan 2/4: menghitung ketukan sambil memetik.",
+      "estimatedMinutes": 20,
+      "published": true,
+      "blocks": [
+        {
+          "type": "text",
+          "data": {
+            "markdown": "## Tanda birama\n**Angka atas** = jumlah ketukan dalam satu birama. **Ketukan pertama selalu paling kuat.**\n\n| Tanda birama | Hitungan |\n|---|---|\n| 4/4 | **1** – 2 – 3 – 4 |\n| 3/4 | **1** – 2 – 3 |\n| 2/4 | **1** – 2 |"
+          }
+        },
+        {
+          "type": "focus",
+          "data": {
+            "markdown": "- Hitung keras “1 – 2 – 3 – 4”.\n- Kaki kiri mengetuk setiap ketukan.\n- Petik dawai ① terbuka bergantian i – m.",
+            "title": "Cara berlatih"
+          }
+        },
+        {
+          "type": "tip",
+          "data": {
+            "markdown": "Pakai **metronom** di menu Latihan. Atur sukatnya sama dengan tanda birama: bunyi pertama yang lebih tinggi = ketukan 1.",
+            "title": "Pakai metronom"
+          }
+        },
+        {
+          "type": "score",
+          "data": {
+            "piece": "tanda-birama",
+            "note": "Latihan sukat 4/4, 2/4, dan 3/4 (modul cetak hal. 10)."
+          }
+        },
+        {
+          "type": "checklist",
+          "data": {
+            "title": "Sudah bisa?",
+            "items": [
+              "Sukat 4/4 · Latihan 1–4",
+              "Sukat 2/4 · Latihan 1–2",
+              "Sukat 3/4 · Latihan 1–2"
+            ]
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Dalam birama 3/4, ketukan mana yang paling kuat?",
+            "options": [
+              "Ketukan 1",
+              "Ketukan 2",
+              "Ketukan 3"
+            ],
+            "answer": 0
+          }
+        }
+      ]
     },
     {
       "slug": "dawai-1-2",
       "title": "Dawai ① dan ②",
       "kind": "technique",
-      "published": false,
-      "blocks": []
+      "summary": "Nada baru di dawai ① (E F G) dan dawai ② (B C D).",
+      "estimatedMinutes": 25,
+      "published": true,
+      "blocks": [
+        {
+          "type": "text",
+          "data": {
+            "markdown": "## I · Nada baru\n| Dawai | Fret 0 | Fret 1 | Fret 3 |\n|---|---|---|---|\n| ② | **B** | **C** | **D** |\n| ① | **E** | **F** | **G** |\n\n### Angka kecil di depan not\nAngka di samping not = **jari tangan kiri**. **0** berarti dawai dipetik terbuka."
+          }
+        },
+        {
+          "type": "focus",
+          "data": {
+            "markdown": "Fret 1 ditekan jari **1**, fret 3 ditekan jari **3**. Tekan dekat kawat fret supaya tidak berdengung.",
+            "title": "Penjarian"
+          }
+        },
+        {
+          "type": "score",
+          "data": {
+            "piece": "dawai-1-2",
+            "note": "Latihan nada dawai ① dan ② (modul cetak hal. 11)."
+          }
+        },
+        {
+          "type": "target",
+          "data": {
+            "title": "Target 3 tahap",
+            "markdown": "- **Tahap 1 · Pelan**: baca & petik per 2 birama.\n- **Tahap 2 · Sedang**: sambung tanpa berhenti.\n- **Tahap 3 · Tempo asli**: mainkan untuk guru atau teman.\n\nCatat tanggal setiap tahap tercapai di modul cetakmu."
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Nada G di dawai ① ditekan di fret…",
+            "options": [
+              "Fret 1",
+              "Fret 2",
+              "Fret 3"
+            ],
+            "answer": 2
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Dawai ② dipetik terbuka (fret 0) berbunyi…",
+            "options": [
+              "B",
+              "C",
+              "E"
+            ],
+            "answer": 0
+          }
+        }
+      ]
     },
     {
       "slug": "lagu-lightly-row-aura-lee",
       "title": "Lagu: Lightly Row & Aura Lee",
       "kind": "piece",
-      "published": false,
-      "blocks": []
+      "summary": "Dua lagu duet pertama: Lightly Row dan Aura Lee.",
+      "estimatedMinutes": 30,
+      "published": true,
+      "blocks": [
+        {
+          "type": "text",
+          "data": {
+            "markdown": "## Lightly Row\n**Gitar 1** memainkan melodi, **Gitar 2** memainkan suara kedua. Mainkan bagian Gitar 1 dulu, lalu tukar.\n\n## Aura Lee\nLagu rakyat Amerika, tempo **Moderato** (sedang). Guru memainkan akor yang tertulis di atas paranada."
+          }
+        },
+        {
+          "type": "score",
+          "data": {
+            "piece": "lightly-row",
+            "note": "Lightly Row (modul cetak hal. 12). Notasi interaktif menyusul."
+          }
+        },
+        {
+          "type": "score",
+          "data": {
+            "piece": "aura-lee",
+            "note": "Aura Lee (modul cetak hal. 12). Notasi interaktif menyusul."
+          }
+        },
+        {
+          "type": "target",
+          "data": {
+            "title": "Target 3 tahap",
+            "markdown": "- **Tahap 1 · Pelan**: baca & petik per 2 birama.\n- **Tahap 2 · Sedang**: sambung tanpa berhenti.\n- **Tahap 3 · Tempo asli**: mainkan untuk guru atau teman.\n\nCatat tanggal setiap tahap tercapai di modul cetakmu."
+          }
+        },
+        {
+          "type": "checklist",
+          "data": {
+            "title": "Lagu yang sudah bisa",
+            "items": [
+              "Lightly Row · Gitar 1",
+              "Lightly Row · Gitar 2",
+              "Aura Lee"
+            ]
+          }
+        }
+      ]
     },
     {
       "slug": "latihan-5-duet",
       "title": "Latihan 5: Duet",
       "kind": "piece",
-      "published": false,
-      "blocks": []
+      "summary": "Latihan 5 sebagai duet: bergantian memainkan Gitar 1 dan Gitar 2.",
+      "estimatedMinutes": 25,
+      "published": true,
+      "blocks": [
+        {
+          "type": "score",
+          "data": {
+            "piece": "latihan-5-duet",
+            "note": "Latihan 5: Duet (modul cetak hal. 13)."
+          }
+        },
+        {
+          "type": "focus",
+          "data": {
+            "markdown": "Mainkan Gitar 1, lalu Gitar 2. Duet terdengar bagus kalau kedua pemain **mulai dan berhenti bersamaan**: hitung bersama “1 – 2 – 3 – 4” sebelum mulai.",
+            "title": "Tukar peran"
+          }
+        },
+        {
+          "type": "checklist",
+          "data": {
+            "title": "Sudah bisa?",
+            "items": [
+              "Gitar 1 sendiri",
+              "Gitar 2 sendiri",
+              "Duet bersama guru/teman"
+            ]
+          }
+        }
+      ]
     },
     {
       "slug": "dawai-3-4",
       "title": "Dawai ③ dan ④",
       "kind": "technique",
-      "published": false,
-      "blocks": []
+      "summary": "Nada baru di dawai ③ (G A) dan dawai ④ (D E F).",
+      "estimatedMinutes": 25,
+      "published": true,
+      "blocks": [
+        {
+          "type": "text",
+          "data": {
+            "markdown": "## J · Nada baru\n| Dawai | Fret 0 | Fret 2 | Fret 3 |\n|---|---|---|---|\n| ④ | **D** | **E** | **F** |\n| ③ | **G** | **A** | |"
+          }
+        },
+        {
+          "type": "focus",
+          "data": {
+            "markdown": "Fret 2 ditekan jari **2**, fret 3 ditekan jari **3**.",
+            "title": "Penjarian"
+          }
+        },
+        {
+          "type": "score",
+          "data": {
+            "piece": "dawai-3-4",
+            "note": "Latihan nada dawai ③ dan ④ (modul cetak hal. 14)."
+          }
+        },
+        {
+          "type": "target",
+          "data": {
+            "title": "Target 3 tahap",
+            "markdown": "- **Tahap 1 · Pelan**: baca & petik per 2 birama.\n- **Tahap 2 · Sedang**: sambung tanpa berhenti.\n- **Tahap 3 · Tempo asli**: mainkan untuk guru atau teman.\n\nCatat tanggal setiap tahap tercapai di modul cetakmu."
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Nada A di dawai ③ ditekan di fret…",
+            "options": [
+              "Fret 1",
+              "Fret 2",
+              "Fret 3"
+            ],
+            "answer": 1
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Nada F di dawai ④ ditekan dengan jari…",
+            "options": [
+              "1",
+              "2",
+              "3"
+            ],
+            "answer": 2
+          }
+        }
+      ]
     },
     {
       "slug": "lagu-moon-night",
       "title": "Lagu: Moon Night",
       "kind": "piece",
-      "published": false,
-      "blocks": []
+      "summary": "Lagu rakyat Prancis Moon Night, dengan tanda D.C. al Fine.",
+      "estimatedMinutes": 30,
+      "published": true,
+      "blocks": [
+        {
+          "type": "text",
+          "data": {
+            "markdown": "## Moon Night\nLagu rakyat Prancis, tempo **Moderato**. **Gitar 1** = melodi, **Gitar 2** = suara kedua, guru memainkan akor.\n\n### D.C. al Fine\nSampai tanda **D.C. al Fine**, kembali ke awal lagu dan berhenti di tulisan **Fine**."
+          }
+        },
+        {
+          "type": "score",
+          "data": {
+            "piece": "moon-night",
+            "note": "Moon Night (modul cetak hal. 15). Notasi interaktif menyusul."
+          }
+        },
+        {
+          "type": "target",
+          "data": {
+            "title": "Target 3 tahap",
+            "markdown": "- **Tahap 1 · Pelan**: baca & petik per 2 birama.\n- **Tahap 2 · Sedang**: sambung tanpa berhenti.\n- **Tahap 3 · Tempo asli**: mainkan untuk guru atau teman.\n\nCatat tanggal setiap tahap tercapai di modul cetakmu."
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Apa arti D.C. al Fine?",
+            "options": [
+              "Kembali ke awal, berhenti di Fine",
+              "Ulangi birama terakhir",
+              "Mainkan lebih pelan"
+            ],
+            "answer": 0
+          }
+        }
+      ]
     },
     {
       "slug": "dawai-5-6",
       "title": "Dawai ⑤ dan ⑥",
       "kind": "technique",
-      "published": false,
-      "blocks": []
+      "summary": "Nada bas di dawai ⑥ (E F G) dan dawai ⑤ (A B C), dipetik dengan ibu jari.",
+      "estimatedMinutes": 25,
+      "published": true,
+      "blocks": [
+        {
+          "type": "text",
+          "data": {
+            "markdown": "## K · Nada baru\n| Dawai | Fret 0 | Fret 1 | Fret 2 | Fret 3 |\n|---|---|---|---|---|\n| ⑥ | **E** | **F** | | **G** |\n| ⑤ | **A** | | **B** | **C** |\n\n### Nada bas\nDawai ④ ⑤ ⑥ dipetik dengan **p** (ibu jari). Not bas ditulis **di bawah paranada** dengan **garis bantu**."
+          }
+        },
+        {
+          "type": "focus",
+          "data": {
+            "markdown": "Ibu jari memetik ke arah bawah dengan gerakan dari pangkal ibu jari, bukan dari ujungnya saja. Jari i–m–a tetap santai di atas dawai ①–③.",
+            "title": "Ibu jari"
+          }
+        },
+        {
+          "type": "score",
+          "data": {
+            "piece": "dawai-5-6",
+            "note": "Latihan nada dawai ⑤ dan ⑥ (modul cetak hal. 16)."
+          }
+        },
+        {
+          "type": "target",
+          "data": {
+            "title": "Target 3 tahap",
+            "markdown": "- **Tahap 1 · Pelan**: baca & petik per 2 birama.\n- **Tahap 2 · Sedang**: sambung tanpa berhenti.\n- **Tahap 3 · Tempo asli**: mainkan untuk guru atau teman.\n\nCatat tanggal setiap tahap tercapai di modul cetakmu."
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Nada bas dipetik dengan…",
+            "options": [
+              "i",
+              "p",
+              "a"
+            ],
+            "answer": 1
+          }
+        },
+        {
+          "type": "quiz",
+          "data": {
+            "question": "Nada C di dawai ⑤ ditekan di fret…",
+            "options": [
+              "Fret 1",
+              "Fret 2",
+              "Fret 3"
+            ],
+            "answer": 2
+          }
+        }
+      ]
     },
     {
       "slug": "petikan-rangkap",
       "title": "Petikan Rangkap",
       "kind": "technique",
-      "published": false,
-      "blocks": []
+      "summary": "Dua nada bersamaan: bas dengan p, nada atas dengan i atau m.",
+      "estimatedMinutes": 25,
+      "published": true,
+      "blocks": [
+        {
+          "type": "text",
+          "data": {
+            "markdown": "## L · Petikan rangkap\nDua nada dipetik **bersamaan**: bas dengan **p**, nada atas dengan **i** atau **m**. Kedua nada harus berbunyi **sama jelas**."
+          }
+        },
+        {
+          "type": "score",
+          "data": {
+            "piece": "petikan-rangkap",
+            "note": "Latihan petikan rangkap (modul cetak hal. 17)."
+          }
+        },
+        {
+          "type": "focus",
+          "data": {
+            "markdown": "- Siapkan p dan i/m di dawainya masing-masing, lalu petik bersamaan seperti mencubit ringan.\n- Dengarkan: apakah bas dan nada atas sama keras?",
+            "title": "Perhatikan"
+          }
+        },
+        {
+          "type": "checklist",
+          "data": {
+            "title": "Sudah bisa?",
+            "items": [
+              "p dan i bersamaan",
+              "p dan m bersamaan",
+              "Latihan petikan rangkap pelan",
+              "Latihan petikan rangkap tanpa berhenti"
+            ]
+          }
+        }
+      ]
     },
     {
       "slug": "latihan-4",
       "title": "Latihan 4",
       "kind": "technique",
-      "published": false,
-      "blocks": []
+      "summary": "Latihan penutup Unit 1 yang menggabungkan semua dawai.",
+      "estimatedMinutes": 25,
+      "published": true,
+      "blocks": [
+        {
+          "type": "score",
+          "data": {
+            "piece": "unit-1-latihan-4",
+            "note": "Latihan 4 (modul cetak hal. 18)."
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "markdown": "Latihan ini memakai nada-nada di semua dawai yang sudah kamu pelajari. Mainkan per 2 birama dulu, lalu sambungkan."
+          }
+        },
+        {
+          "type": "target",
+          "data": {
+            "title": "Target 3 tahap",
+            "markdown": "- **Tahap 1 · Pelan**: baca & petik per 2 birama.\n- **Tahap 2 · Sedang**: sambung tanpa berhenti.\n- **Tahap 3 · Tempo asli**: mainkan untuk guru atau teman.\n\nCatat tanggal setiap tahap tercapai di modul cetakmu."
+          }
+        }
+      ]
     },
     {
       "slug": "cek-unit-1",
       "title": "Cek Unit 1",
       "kind": "check",
-      "published": false,
-      "blocks": []
+      "summary": "Menilai sendiri 12 kemampuan Unit 1, lalu guru memeriksa dan membuka Unit 2.",
+      "estimatedMinutes": 15,
+      "published": true,
+      "blocks": [
+        {
+          "type": "text",
+          "data": {
+            "markdown": "Sebelum lanjut ke **Unit 2 · Teknik 1**, periksa dulu kemampuanmu. Kalau sebagian besar sudah **Sudah**, kamu siap masuk ke Teknik. Yang masih **Belum**, ulangi halamannya.\n\nSetelah kamu mengisi semuanya dan menekan **Tandai selesai**, guru akan memeriksa bersamamu saat les, lalu membuka Unit 2."
+          }
+        }
+      ]
     }
   ],
   "checkItems": [

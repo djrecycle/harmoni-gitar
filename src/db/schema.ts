@@ -522,6 +522,11 @@ export const meeting = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "restrict" }),
     slotId: uuid("slot_id").references(() => lessonSlot.id, { onDelete: "set null" }),
+    /**
+     * For meetings generated from a slot: the slot date this meeting was made for. It stays the same when the
+     * meeting is moved to another `date`, so generating again never re-creates a meeting that was rescheduled.
+     */
+    originalDate: date("original_date"),
     date: date("date").notNull(),
     startTime: time("start_time"),
     status: meetingStatusEnum("status").notNull().default("scheduled"),
@@ -533,7 +538,11 @@ export const meeting = pgTable(
     privateNote: text("private_note"),
     ...timestamps,
   },
-  (t) => [index("meeting_teacher_date_idx").on(t.teacherId, t.date), index("meeting_student_date_idx").on(t.studentId, t.date)],
+  (t) => [
+    index("meeting_teacher_date_idx").on(t.teacherId, t.date),
+    index("meeting_student_date_idx").on(t.studentId, t.date),
+    uniqueIndex("meeting_slot_original_date_unique").on(t.slotId, t.originalDate),
+  ],
 );
 
 /* ------------------------------------------------------------------ */

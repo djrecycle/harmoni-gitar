@@ -1,14 +1,21 @@
 import { z } from "zod";
 import { lessonBlockTypeEnum, lessonKindEnum } from "@/db/schema";
+import { blockDataSchemas } from "./blocks";
 
 /** Format of content/units/*.json (documented in content/README.md). */
 
 const slug = z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "slug: lowercase letters, numbers and dashes only");
 
-export const blockFileSchema = z.object({
-  type: z.enum(lessonBlockTypeEnum.enumValues),
-  data: z.record(z.string(), z.unknown()).default({}),
-});
+export const blockFileSchema = z
+  .object({
+    type: z.enum(lessonBlockTypeEnum.enumValues),
+    data: z.record(z.string(), z.unknown()).default({}),
+  })
+  .superRefine((b, ctx) => {
+    // Check the data against its block type, so a broken block is caught by `npm run db:seed`, not by a student.
+    const r = blockDataSchemas[b.type].safeParse(b.data);
+    if (!r.success) for (const i of r.error.issues) ctx.addIssue({ code: "custom", path: ["data", ...i.path.map(String)], message: i.message });
+  });
 
 export const lessonFileSchema = z.object({
   slug,

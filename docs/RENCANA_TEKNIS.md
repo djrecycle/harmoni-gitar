@@ -23,7 +23,7 @@ Aplikasi web untuk **siswa les gitar klasik Pak Rangga** agar bisa berlatih mand
 - **Better Auth** dengan plugin `username` dan `admin` (pola persis seperti Harmoni: `admin.createUser` untuk akun buatan guru tanpa berpindah sesi).
 - **Penyimpanan file**: lokal (`UPLOAD_DIR`) atau S3, salin `src/lib/storage.ts` dari Harmoni.
 - **i18n Indonesia/Inggris**: salin pola `src/i18n` dari Harmoni (bawaan: Indonesia).
-- **Audio**: `tone` (sudah dipakai Harmoni untuk metronom).
+- **Audio**: Web Audio API langsung untuk metronom dan bunyi timer (`src/lib/audio.ts`); `tone` tidak dipakai agar ringan dan bisa offline.
 - **Baru:**
   - **alphaTab** (`@coderline/alphatab`): menampilkan notasi balok + tab gitar dari MusicXML, memutar suara, kursor mengikuti not, ubah tempo.
   - **Deteksi nada untuk tuner**: Web Audio API + library kecil seperti `pitchy`.
@@ -128,9 +128,9 @@ Jurnal = daftar `practice_session`. Streak dan pelacak mingguan **dihitung dari 
 | Tabel | Kolom penting |
 |---|---|
 | `lesson_slot` | Jadwal tetap mingguan: `studentId`, `teacherId`, `dayOfWeek`, `startTime`, `durationMinutes`, `location` (`studio`/`rumah siswa`/`online`), `activeFrom`, `activeUntil` |
-| `meeting` | Satu pertemuan: `id`, `studentId`, `teacherId`, `date`, `startTime`, `status` (`scheduled`/`hadir`/`izin`/`sakit`/`alpa`/`batal_guru`/`pengganti`), `material` (yang dipelajari), `teacherNote` (catatan untuk siswa), `privateNote` (hanya guru), `slotId` (opsional) |
+| `meeting` | Satu pertemuan: `id`, `studentId`, `teacherId`, `date`, `startTime`, `status` (`scheduled`/`hadir`/`izin`/`sakit`/`alpa`/`batal_guru`/`pengganti`), `material` (yang dipelajari), `teacherNote` (catatan untuk siswa), `privateNote` (hanya guru), `slotId` (opsional), `originalDate` (tanggal jadwal tetap asal; unik bersama `slotId`) |
 
-Pertemuan dibuat otomatis dari `lesson_slot` untuk 4–8 minggu ke depan, dan bisa diubah satu per satu (reschedule, pertemuan pengganti).
+Pertemuan dibuat otomatis dari `lesson_slot` untuk 8 minggu ke depan (dan seminggu ke belakang), dan bisa diubah satu per satu (reschedule, pertemuan pengganti). Pertemuan yang dipindah tetap menyimpan `originalDate`, sehingga pembuatan otomatis tidak membuat duplikat di tanggal asalnya. Pertemuan dari jadwal tetap tidak bisa dihapus (statusnya diubah ke `batal_guru`); pertemuan tambahan bisa dihapus. Status `pengganti` berarti "dipindah ke hari lain".
 
 ### 5.7 Pembayaran (disiapkan, dimatikan)
 | Tabel | Kolom penting |
@@ -182,8 +182,8 @@ Prefiks route dalam bahasa Indonesia agar mudah dibaca. Semua halaman dipriorita
 ## 7. Fitur latihan: detail teknis
 
 - **Notasi (alphaTab)**: sumber MusicXML disimpan sebagai file (`piece.musicXmlFileKey`). Tampilkan notasi balok + tab, tombol putar/jeda, pengatur tempo (persentase atau bpm), loop bagian (birama A–B), kursor. Muat alphaTab hanya di halaman yang butuh (dynamic import, `ssr: false`).
-- **Metronom**: pakai ulang dari Harmoni; tambahkan **tangga tempo** (mulai dari bpm tahap 1, tombol "+4 bpm") dan simpan bpm tertinggi ke `practice_session.maxBpm` → memperbarui `piece_progress.bestBpm`.
-- **Timer rutinitas**: 4 segmen dengan durasi **default 5/10/10/10 menit** (pemanasan/teknik/etude/lagu). Guru bisa mengubah default untuk semua siswa di Pengaturan, dan mengubah khusus untuk satu siswa di profilnya (`student_profile.routineSegments`). Ada bunyi penanda pergantian segmen, tetap jalan saat layar berpindah tab; saat selesai → simpan `practice_session` → muncul di jurnal.
+- **Metronom**: Web Audio API langsung (`src/lib/audio.ts`, penjadwal *look-ahead*; tanpa unduhan sampel sehingga bisa offline), bukan `tone`. Ada **tangga tempo** ("+4 bpm"; tombol *Tanpa salah*/*Ada salah*, 3× tanpa salah → naik 4 bpm otomatis). Tempo tertinggi yang benar-benar dimainkan (≥ 10 detik) disimpan ke `practice_session.maxBpm`. Selama belum ada karya (Tahap 2) kuncinya `"general"`; mulai Tahap 2 kuncinya `pieceId` → memperbarui `piece_progress.bestBpm`.
+- **Timer rutinitas**: 4 segmen dengan durasi **default 5/10/10/10 menit** (pemanasan/teknik/etude/lagu). Guru bisa mengubah default untuk semua siswa di Pengaturan, dan mengubah khusus untuk satu siswa di profilnya (`student_profile.routineSegments`). Ada bunyi penanda pergantian segmen (dijadwalkan di jam audio, jadi tetap berbunyi saat tab di belakang) dan getar di HP; waktu dihitung dari jam perangkat dan disimpan di `localStorage`, jadi sesi tidak hilang saat halaman dimuat ulang. Saat selesai → isi suasana hati/kesulitan/catatan → simpan `practice_session` → muncul di jurnal. Siswa juga bisa mencatat latihan manual (sampai 7 hari ke belakang) dan menghapus catatan 7 hari terakhir.
 - **Rekaman**: `MediaRecorder` (pola `recorder.tsx` / `free-recorder.tsx` Harmoni), batasi durasi (mis. 5 menit) dan ukuran file, unggah ke storage.
 - **Tuner**: mikrofon → deteksi frekuensi → nama nada terdekat + selisih cent, dengan tampilan khusus 6 dawai (E A D G B E).
 - **Offline ringan / PWA**: manifest + service worker untuk memasang di layar HP; cache aset statis, metronom, dan tuner agar tetap bisa dipakai saat sinyal lemah.
@@ -202,6 +202,12 @@ Setiap tahap selesai = bisa dipakai siswa sungguhan.
 - Sesi latihan: timer rutinitas, metronom dengan tangga tempo, jurnal & streak, pelacak mingguan.
 - Jadwal tetap + pertemuan + absensi + catatan guru.
 - ✅ Selesai jika: 2–3 siswa uji coba bisa diundang, belajar Unit 1, mencatat latihan seminggu, dan guru melihat semuanya di dashboard.
+- **Status (11 Nov 2026): kode selesai dan diuji di browser** (lihat catatan di bawah). Tinggal uji coba dengan siswa sungguhan.
+- Catatan Tahap 1:
+  - Isi pelajaran Unit 1 berupa teks, tabel, checklist, kuis, tips, dan target; notasi latihan memakai blok `score` yang untuk sementara merujuk ke halaman modul cetak (alphaTab di Tahap 2). Gambar dari PDF modul **tidak** dimasukkan karena asal-usulnya (buku sumber) belum jelas; foto/gambar buatan sendiri bisa ditambahkan sebagai blok `image`.
+  - Kuis hanya umpan balik langsung, jawabannya tidak disimpan. "Tandai selesai" tidak mewajibkan checklist penuh; Cek Unit wajib terisi semua.
+  - Guru bisa membuka/mengunci unit secara manual di profil siswa, selain lewat persetujuan Cek Unit.
+  - Halaman `/guru/kurikulum` belum dibuat (tidak wajib untuk Tahap 1).
 
 **Tahap 2: Notasi interaktif**
 - alphaTab + karya Unit 1 dalam MusicXML (hasil tulis ulang notasi), target 3 tahap per karya, `piece_progress`.

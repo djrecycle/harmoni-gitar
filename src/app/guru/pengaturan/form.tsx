@@ -7,20 +7,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Field, Input } from "@/components/ui/input";
 import { SubmitButton } from "@/components/ui/submit";
 import { initialState } from "@/lib/action-result";
+import { SEGMENT_LABEL } from "@/lib/labels";
 import { ROUTINE_KEYS } from "@/lib/routine";
+import { withToast } from "@/lib/with-toast";
 import type { Settings } from "@/lib/settings";
 import { useT } from "@/i18n/client";
 
-const SEGMENT_LABEL: Record<(typeof ROUTINE_KEYS)[number], string> = {
-  warmup: "Warm-up & posture",
-  technique: "Technique",
-  etude: "Etude",
-  piece: "Piece",
-};
-
 export function SettingsForm({ settings }: { settings: Settings }) {
   const t = useT();
-  const [state, action] = useActionState(updateSettings, initialState);
+  const [state, action] = useActionState(withToast(updateSettings), initialState);
   const e = state.fieldErrors ?? {};
   const v = state.values;
   const total = ROUTINE_KEYS.reduce((n, k) => n + settings.routine[k], 0);
