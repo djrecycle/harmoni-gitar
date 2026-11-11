@@ -15,6 +15,13 @@
       "when": 1794366467722,
       "tag": "0001_meeting_original_date",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794408316421,
+      "tag": "0002_teacher_material",
+      "breakpoints": true
     }
   ]
 }

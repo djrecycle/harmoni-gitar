@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarPlus, CircleCheck, Lock, LockOpen } from "lucide-react";
+import { ArrowLeft, CalendarPlus, CircleCheck, Gift, Lock, LockOpen, Plus } from "lucide-react";
 import { approveUnit, setUnitOpen } from "@/app/actions/learning";
 import { setActive } from "@/app/actions/students";
 import { ActionButton } from "@/components/action-button";
@@ -9,9 +9,10 @@ import { JournalList, PracticeStatCards, WeekTracker } from "@/components/practi
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, Badge, PageHeader, Progress } from "@/components/ui/misc";
-import { getUnitCheck, getUnitMap } from "@/lib/curriculum";
+import { getExtraLessons, getUnitCheck, getUnitMap } from "@/lib/curriculum";
 import { dayName, formatDay, shortTime } from "@/lib/dates";
 import { LOCATION_LABEL, MEETING_STATUS_LABEL, MEETING_STATUS_TONE } from "@/lib/labels";
+import { getAvailablePieces } from "@/lib/pieces";
 import { getJournal, getPracticeStats } from "@/lib/practice";
 import { ROUTINE_KEYS } from "@/lib/routine";
 import { listSlots, studentMeetings } from "@/lib/schedule";
@@ -20,6 +21,7 @@ import { getStudentOfTeacher, routineFor } from "@/lib/students";
 import { formatDate, today } from "@/lib/utils";
 import { getT } from "@/i18n/server";
 import { ProfileForm, ResetPasswordButton, TeacherCheckForm } from "./forms";
+import { PieceRows } from "./piece-rows";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -37,8 +39,9 @@ export default async function StudentProfilePage({ params }: Props) {
   const t = await getT();
   const now = today();
 
-  const [map, stats, journal, { routine, custom }, slots, upcoming, past] = await Promise.all([
+  const [map, extras, stats, journal, { routine, custom }, slots, upcoming, past] = await Promise.all([
     getUnitMap(id),
+    getExtraLessons(id),
     getPracticeStats(id),
     getJournal(id, 10),
     routineFor(id),
@@ -47,6 +50,7 @@ export default async function StudentProfilePage({ params }: Props) {
     studentMeetings(id, { to: now, limit: 5, order: "desc" }),
   ]);
   const goal = ROUTINE_KEYS.reduce((n, k) => n + routine[k], 0);
+  const pieces = await getAvailablePieces(id, map, extras);
   const active = s.profile.status === "active";
 
   // Cek Unit of every open unit that has check items, newest unit first.
@@ -107,6 +111,7 @@ export default async function StudentProfilePage({ params }: Props) {
       <nav className="mb-6 flex gap-2 overflow-x-auto pb-1 text-sm font-semibold">
         {[
           ["#kemajuan", t("Progress")],
+          ["#karya", t("Pieces")],
           ["#latihan", t("Practice")],
           ["#jadwal", t("Schedule")],
           ["#profil", t("Profile")],
@@ -199,6 +204,60 @@ export default async function StudentProfilePage({ params }: Props) {
             </Card>
           ))}
         </div>
+      </section>
+
+      <section id="tambahan" className="mt-10 grid scroll-mt-20 gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="flex items-center gap-2 text-xl font-extrabold">
+            <Gift className="size-5 text-accent" /> {t("Extra material")}
+          </h2>
+          <Button asChild size="sm" variant="outline">
+            <Link href={`/guru/materi/pelajaran/baru?siswa=${id}`}>
+              <Plus /> {t("Give extra material")}
+            </Link>
+          </Button>
+        </div>
+        {extras.length ? (
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {extras.map((l) => (
+              <li key={l.id}>
+                <Link href={`/guru/materi/pelajaran/${l.id}/pratinjau`} className="flex items-center justify-between gap-2 rounded-xl border bg-card p-3 shadow-xs hover:border-primary/50">
+                  <span className="min-w-0 truncate font-semibold">{l.title}</span>
+                  {l.state === "done" ? (
+                    <Badge tone="success">
+                      <CircleCheck className="size-3" /> {t("Done {0}", formatDate(l.doneAt))}
+                    </Badge>
+                  ) : (
+                    <Badge>{t("Not done yet")}</Badge>
+                  )}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-muted-foreground">{t("No extra material for this student yet.")}</p>
+        )}
+      </section>
+
+      <section id="karya" className="mt-10 grid scroll-mt-20 gap-4">
+        <h2 className="text-xl font-extrabold">{t("Pieces")}</h2>
+        <p className="text-sm text-muted-foreground">{t("Stages 1–3 (slow, medium, full tempo). The student ticks them; you can correct a stage and mark it as checked after hearing it.")}</p>
+        {pieces.length ? (
+          <PieceRows
+            studentId={id}
+            rows={pieces.map((p) => ({
+              id: p.id,
+              title: p.title,
+              stage: p.progress.stage,
+              verified: p.progress.teacherVerified,
+              bestBpm: p.progress.bestBpm,
+              stageBpm: p.stageBpm,
+              dates: p.progress.stageDates,
+            }))}
+          />
+        ) : (
+          <p className="text-sm text-muted-foreground">{t("No pieces opened yet.")}</p>
+        )}
       </section>
 
       <section id="latihan" className="mt-10 grid scroll-mt-20 gap-4">

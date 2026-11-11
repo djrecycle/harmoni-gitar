@@ -1,0 +1,14 @@
+{
+  "slug": "aura-lee",
+  "title": "Aura Lee",
+  "composer": "George R. Poulton (1861)",
+  "defaultBpm": 80,
+  "stageBpm": {
+    "1": 50,
+    "2": 65,
+    "3": 80
+  },
+  "timeSignature": "4/4",
+  "copyrightStatus": "public_domain",
+  "sourceNote": "Melodi domain publik (1861), ditulis ulang dalam tangga nada C. Akor iringan disusun sendiri."
+}

@@ -1,0 +1,7 @@
+time 4/4
+tempo 72
+part Gitar 1 (siswa)
+[Em] 2.0i:q 1.0m:q 2.0i:q 3.0m:q | [Am] 1.0i:h 1.0m:h | [G] 3.0i:q 2.0m:q 1.0i:q 2.0m:q | [G] 3.0i:w
+[Em] 1.0i:q 2.0m:q 1.0i:q 2.0m:q | [Am] 3.0i:q 3.0m:q 2.0i:h | [G] 1.0m:q 2.0i:q 3.0m:q 2.0i:q | [Em] 1.0m:w
+part Gitar 2 (guru)
+6.0:h 4.2:h | 5.0:h 4.2:h | 6.3:h 5.2:h | 6.3:w | 6.0:h 5.2:h | 5.0:h 4.2:h | 6.3:h 4.0:h | 6.0:w

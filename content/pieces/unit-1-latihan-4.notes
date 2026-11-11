@@ -1,0 +1,8 @@
+# Sukat 3/4: bas dengan p ditahan tiga ketukan, melodi di dawai atas.
+time 3/4
+tempo 80
+part Gitar
+[C] 1.0:q 2.1:q 1.0:q | [G7] 1.1:q 2.3:q 1.1:q | [C] 1.3:q 1.1:q 1.0:q | [G] 2.3:h.
+[C] 1.0:q 1.1:q 1.3:q | [Am] 1.0:q 2.1:q 3.2:q | [G7] 2.3:q 2.0:q 1.1:q | [C] 2.1:h.
+part Gitar voice 2
+5.3p:h. | 6.3p:h. | 5.3p:h. | 6.3p:h. | 5.3p:h. | 5.0p:h. | 6.3p:h. | 5.3p:h.

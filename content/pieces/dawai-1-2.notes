@@ -1,0 +1,8 @@
+# Dawai 2: B (0) C (1) D (3). Dawai 1: E (0) F (1) G (3). Angka fret = jari tangan kiri.
+time 4/4
+tempo 72
+part Gitar
+[G] 2.0i:q 2.1m:q 2.3i:q 2.1m:q | [G] 2.0i:h 2.3m:h | [C] 1.0i:q 1.1m:q 1.3i:q 1.1m:q | [C] 1.0i:h 1.3m:h
+[G7] 2.3i:q 1.0m:q 1.1i:q 1.3m:q | [G7] 1.1i:q 1.0m:q 2.3i:h | [C] 2.1m:q 2.3i:q 1.0m:q 2.3i:q | [C] 2.1m:w !!
+[C] 1.0i:q 1.1m:q 1.3i:h | [G7] 1.1m:q 1.0i:q 2.3m:h | [C] 2.1i:q 2.3m:q 1.0i:q 1.1m:q | [C] 1.0i:w
+[C] 1.3i:q 1.1m:q 1.0i:q 2.3m:q | [C] 2.1i:q 2.3m:q 1.0i:h | [G7] 2.3m:q 2.1i:q 2.0m:q 2.3i:q | [C] 2.1m:w

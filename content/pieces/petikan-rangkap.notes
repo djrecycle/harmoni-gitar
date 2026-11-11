@@ -1,0 +1,6 @@
+# Bas (p) dan nada atas (i atau m) dipetik bersamaan; keduanya harus sama jelas.
+time 4/4
+tempo 60
+part Gitar
+[C] 5.3p+2.1i:h [G] 6.3p+2.0i:h | [C] 5.3p+1.0m:h [G] 6.3p+2.3m:h | [Am] 5.0p+2.1i:h [Em] 6.0p+2.0i:h | [C] 5.3p+2.1m:w !!
+[C] 5.3p+1.0m:q 2.1i:q 2.3m:q 1.0i:q | [G] 6.3p+2.3m:q 2.0i:q 2.1m:q 2.3i:q | [Am] 5.0p+2.1m:q 2.0i:q 3.2m:q 2.0i:q | [C] 5.3p+2.1m:w

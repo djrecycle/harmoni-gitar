@@ -1,0 +1,13 @@
+{
+  "slug": "apoyando-posisi-blok",
+  "title": "Posisi Blok dengan Apoyando",
+  "defaultBpm": 60,
+  "stageBpm": {
+    "1": 40,
+    "2": 50,
+    "3": 60
+  },
+  "timeSignature": "4/4",
+  "copyrightStatus": "own_work",
+  "sourceNote": "Latihan baru buatan sendiri untuk Harmoni Gitar (bukan salinan latihan buku sumber); tujuannya sama dengan latihan modul hal. 6."
+}

@@ -9,20 +9,28 @@ import { SelfCheck } from "@/components/lesson/self-check";
 import { Button } from "@/components/ui/button";
 import { Alert, Badge, EmptyState } from "@/components/ui/misc";
 import { db, schema } from "@/db";
-import { checklistStates, getUnitCheck, getUnitMap, markLessonOpened } from "@/lib/curriculum";
+import { EXTRA_SEGMENT, checklistStates, getExtraLessons, getUnitCheck, getUnitMap, markLessonOpened, type MapLesson, type MapUnit } from "@/lib/curriculum";
 import { LESSON_KIND_LABEL } from "@/lib/labels";
+import { getAvailablePieces } from "@/lib/pieces";
 import { requireStudent } from "@/lib/session";
 import { formatDate } from "@/lib/utils";
 import { getT } from "@/i18n/server";
 
 type Props = { params: Promise<{ unit: string; pelajaran: string }> };
 
-async function find(studentId: string, unitSlug: string, lessonSlug: string) {
-  const map = await getUnitMap(studentId);
+type Found = { map: MapUnit[]; extras: MapLesson[]; unit: MapUnit | null; lesson: MapLesson; prev?: MapLesson; next?: MapLesson };
+
+/** The lesson in a unit, or (unit segment "tambahan") extra material given to this student. */
+async function find(studentId: string, unitSlug: string, lessonSlug: string): Promise<Found | null> {
+  const [map, extras] = await Promise.all([getUnitMap(studentId), getExtraLessons(studentId)]);
+  if (unitSlug === EXTRA_SEGMENT) {
+    const lesson = extras.find((l) => l.slug === lessonSlug);
+    return lesson ? { map, extras, unit: null, lesson } : null;
+  }
   const unit = map.find((u) => u.slug === unitSlug);
   const idx = unit?.lessons.findIndex((l) => l.slug === lessonSlug) ?? -1;
   if (!unit || idx < 0) return null;
-  return { map, unit, lesson: unit.lessons[idx], prev: unit.lessons[idx - 1], next: unit.lessons[idx + 1] };
+  return { map, extras, unit, lesson: unit.lessons[idx], prev: unit.lessons[idx - 1], next: unit.lessons[idx + 1] };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -51,7 +59,7 @@ export default async function LessonPage({ params }: Props) {
           </Button>
         }
       >
-        {unit.unlocked ? t("Finish the lesson before it first.") : t("This unit opens after your teacher approves the unit check of the unit before.")}
+        {unit?.unlocked ? t("Finish the lesson before it first.") : t("This unit opens after your teacher approves the unit check of the unit before.")}
       </EmptyState>
     );
   }
@@ -62,13 +70,14 @@ export default async function LessonPage({ params }: Props) {
     student.id,
     blocks.filter((b) => b.type === "checklist").map((b) => b.id),
   );
-  const checkItems = lesson.kind === "check" ? await getUnitCheck(student.id, unit.id) : [];
-  const nextUnit = f.map.find((u) => u.order > unit.order);
+  const checkItems = lesson.kind === "check" && unit ? await getUnitCheck(student.id, unit.id) : [];
+  const pieces = blocks.some((b) => b.type === "score") ? new Map((await getAvailablePieces(student.id, f.map, f.extras)).map((p) => [p.slug, p])) : new Map();
+  const nextUnit = unit && f.map.find((u) => u.order > unit.order);
 
   return (
     <article className="mx-auto max-w-3xl">
       <Link href="/siswa/belajar" className="mb-3 inline-flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="size-4" /> {t("Unit {0}", unit.order)} · {unit.title}
+        <ArrowLeft className="size-4" /> {unit ? `${t("Unit {0}", unit.order)} · ${unit.title}` : t("Extra material")}
       </Link>
       <header className="mb-6">
         <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -88,9 +97,9 @@ export default async function LessonPage({ params }: Props) {
         {lesson.summary && <p className="mt-2 text-muted-foreground">{lesson.summary}</p>}
       </header>
 
-      <LessonBlocks blocks={blocks} checklists={checklists} />
+      <LessonBlocks blocks={blocks} checklists={checklists} pieces={pieces} />
 
-      {lesson.kind === "check" && (
+      {lesson.kind === "check" && unit && (
         <section className="mt-6 grid gap-3">
           <h2 className="text-lg font-extrabold">{t("How ready are you?")}</h2>
           <p className="text-sm text-muted-foreground">{t("Be honest: pick Not yet, Almost, or Got it for each skill. Your teacher checks it with you and then opens the next unit.")}</p>
@@ -109,14 +118,14 @@ export default async function LessonPage({ params }: Props) {
           </Button>
         </div>
         <div className="flex justify-between gap-2 text-sm font-semibold">
-          {prev ? (
+          {prev && unit ? (
             <Link href={`/siswa/belajar/${unit.slug}/${prev.slug}`} className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground">
               <ArrowLeft className="size-4" /> {prev.title}
             </Link>
           ) : (
             <span />
           )}
-          {next && next.state !== "locked" && (
+          {next && unit && next.state !== "locked" && (
             <Link href={`/siswa/belajar/${unit.slug}/${next.slug}`} className="inline-flex items-center gap-1 text-right text-primary hover:underline">
               {next.title} <ArrowRight className="size-4" />
             </Link>

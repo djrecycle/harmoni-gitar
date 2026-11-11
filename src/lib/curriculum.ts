@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import { db, schema } from "@/db";
 
 /*
@@ -55,7 +55,7 @@ export async function getUnitMap(studentId: string): Promise<MapUnit[]> {
         order: S.lesson.order,
       })
       .from(S.lesson)
-      .where(eq(S.lesson.published, true))
+      .where(and(eq(S.lesson.published, true), isNotNull(S.lesson.unitId)))
       .orderBy(asc(S.lesson.order)),
     db.select().from(S.lessonProgress).where(eq(S.lessonProgress.studentId, studentId)),
     db.select().from(S.unitUnlock).where(eq(S.unitUnlock.studentId, studentId)),
@@ -69,6 +69,8 @@ export async function getUnitMap(studentId: string): Promise<MapUnit[]> {
     let prevDone = true;
     const ls: MapLesson[] = lessons
       .filter((l) => l.unitId === u.id)
+      // The Cek Unit lesson always comes last, also after lessons the teacher added to the unit.
+      .sort((a, b) => Number(a.kind === "check") - Number(b.kind === "check") || a.order - b.order)
       .map((l) => {
         const p = progressBy.get(l.id);
         const state: LessonState = p?.status === "done" ? "done" : unlocked && prevDone ? "open" : "locked";
@@ -89,6 +91,35 @@ export async function getUnitMap(studentId: string): Promise<MapUnit[]> {
       done: ls.filter((l) => l.state === "done").length,
     };
   });
+}
+
+/** Route segment for extra material: /siswa/belajar/tambahan/<lesson slug>. No unit may use this slug. */
+export const EXTRA_SEGMENT = "tambahan";
+
+/**
+ * Extra material ("materi tambahan"): published lessons without a unit that the teacher gave this student.
+ * They are always open (no step-by-step unlocking), newest first.
+ */
+export async function getExtraLessons(studentId: string): Promise<MapLesson[]> {
+  const S = schema;
+  const rows = await db
+    .select({
+      id: S.lesson.id,
+      slug: S.lesson.slug,
+      title: S.lesson.title,
+      kind: S.lesson.kind,
+      summary: S.lesson.summary,
+      estimatedMinutes: S.lesson.estimatedMinutes,
+      order: S.lesson.order,
+      status: S.lessonProgress.status,
+      doneAt: S.lessonProgress.doneAt,
+    })
+    .from(S.lessonStudent)
+    .innerJoin(S.lesson, eq(S.lesson.id, S.lessonStudent.lessonId))
+    .leftJoin(S.lessonProgress, and(eq(S.lessonProgress.lessonId, S.lesson.id), eq(S.lessonProgress.studentId, studentId)))
+    .where(and(eq(S.lessonStudent.studentId, studentId), eq(S.lesson.published, true), isNull(S.lesson.unitId)))
+    .orderBy(desc(S.lessonStudent.createdAt));
+  return rows.map(({ status, doneAt, ...l }) => ({ ...l, state: status === "done" ? "done" : "open", doneAt: status === "done" ? doneAt : null }));
 }
 
 /** The lesson the student should do next (first open lesson in an unlocked unit), if any. */

@@ -1,0 +1,7 @@
+# Dawai 4: D (0) E (2) F (3). Dawai 3: G (0) A (2).
+time 4/4
+tempo 72
+part Gitar
+4.0i:q 4.2m:q 4.3i:q 4.2m:q | 4.0i:h 4.3m:h | 3.0i:q 3.2m:q 3.0i:q 3.2m:q | 3.0i:h 3.2m:h !!
+4.0i:q 4.2m:q 4.3i:q 3.0m:q | 3.2i:q 2.0m:q 2.1i:q 2.3m:q | 2.1i:q 2.0m:q 3.2i:q 3.0m:q | 4.3i:q 4.2m:q 4.0i:h !!
+3.0i:q 3.2m:q 2.0i:q 3.2m:q | 3.0i:q 4.3m:q 4.2i:h | 4.0i:q 4.2m:q 4.3i:q 3.0m:q | 4.0i:w

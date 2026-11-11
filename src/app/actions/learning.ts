@@ -7,14 +7,17 @@ import { db, schema } from "@/db";
 import { fail, succeed, type ActionResult } from "@/lib/action-result";
 import { isTeacherOfStudent } from "@/lib/access";
 import { parseBlock } from "@/lib/blocks";
-import { getUnitCheck, getUnitMap } from "@/lib/curriculum";
+import { getExtraLessons, getUnitCheck, getUnitMap } from "@/lib/curriculum";
 import { CHECK_LEVELS } from "@/lib/labels";
 import { requireStudent, requireTeacher } from "@/lib/session";
 import { getT } from "@/i18n/server";
 
 const uuid = z.uuid();
 
-/** The lesson and its state for this student, or null when it is not published / not theirs to open. */
+/**
+ * The lesson and its state for this student, or null when it is not published / not theirs to open.
+ * unit = null: extra material given to this student.
+ */
 async function lessonFor(studentId: string, lessonId: string) {
   if (!uuid.safeParse(lessonId).success) return null;
   const map = await getUnitMap(studentId);
@@ -22,7 +25,8 @@ async function lessonFor(studentId: string, lessonId: string) {
     const lesson = unit.lessons.find((l) => l.id === lessonId);
     if (lesson) return { unit, lesson, map };
   }
-  return null;
+  const extra = (await getExtraLessons(studentId)).find((l) => l.id === lessonId);
+  return extra ? { unit: null, lesson: extra, map } : null;
 }
 
 /* ------------------------------ Student ------------------------------ */
@@ -81,7 +85,7 @@ export async function completeLesson(lessonId: string): Promise<ActionResult<{ n
   if (!found || found.lesson.state === "locked") return fail(t("This lesson is still locked."));
   const { unit, lesson } = found;
 
-  if (lesson.kind === "check") {
+  if (lesson.kind === "check" && unit) {
     const items = await getUnitCheck(student.id, unit.id);
     if (items.some((i) => !i.selfLevel)) return fail(t("Fill in every skill first (Not yet / Almost / Got it)."));
   }
@@ -92,9 +96,10 @@ export async function completeLesson(lessonId: string): Promise<ActionResult<{ n
     .values({ studentId: student.id, lessonId, status: "done", openedAt: new Date(), doneAt: new Date() })
     .onConflictDoUpdate({ target: [P.studentId, P.lessonId], set: { status: "done", doneAt: sql`coalesce(${P.doneAt}, now())` } });
 
+  refresh();
+  if (!unit) return succeed(t("Lesson done!"), { next: null });
   const idx = unit.lessons.findIndex((l) => l.id === lessonId);
   const next = unit.lessons[idx + 1];
-  refresh();
   return succeed(t("Lesson done!"), { next: next ? `/siswa/belajar/${unit.slug}/${next.slug}` : null });
 }
 

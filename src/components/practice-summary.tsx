@@ -1,5 +1,7 @@
+import { inArray } from "drizzle-orm";
 import { CalendarCheck, Clock, Flame } from "lucide-react";
 import { StatCard } from "@/components/ui/misc";
+import { db, schema } from "@/db";
 import { DAY_SHORT, formatDayShort } from "@/lib/dates";
 import type { JournalEntry, PracticeStats } from "@/lib/practice";
 import { GENERAL_BPM_KEY } from "@/lib/practice";
@@ -63,11 +65,16 @@ const MOODS = ["😫", "😕", "😐", "🙂", "😄"];
 /** Journal entries (newest first). `renderDelete` adds a delete control for the student's own recent entries. */
 export async function JournalList({ entries, renderDelete }: { entries: JournalEntry[]; renderDelete?: (e: JournalEntry) => React.ReactNode }) {
   const t = await getT();
+  // Names of the pieces whose tempo was recorded.
+  const pieceIds = [...new Set(entries.flatMap((e) => Object.keys(e.maxBpm ?? {}).filter((k) => k !== GENERAL_BPM_KEY)))];
+  const titles = new Map(
+    pieceIds.length ? (await db.select({ id: schema.piece.id, title: schema.piece.title }).from(schema.piece).where(inArray(schema.piece.id, pieceIds))).map((p) => [p.id, p.title]) : [],
+  );
   if (!entries.length) return <p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">{t("No practice recorded yet.")}</p>;
   return (
     <ul className="grid gap-2">
       {entries.map((e) => {
-        const bpm = e.maxBpm?.[GENERAL_BPM_KEY];
+        const tempos = Object.entries(e.maxBpm ?? {}).map(([k, bpm]) => (k === GENERAL_BPM_KEY ? t("metronome up to {0} bpm", bpm) : `${titles.get(k) ?? "?"} ${bpm} bpm`));
         const segs = ROUTINE_KEYS.filter((k) => (e.segments?.[k] ?? 0) > 0);
         return (
           <li key={e.id} className="rounded-xl border bg-card p-3 shadow-xs">
@@ -79,7 +86,7 @@ export async function JournalList({ entries, renderDelete }: { entries: JournalE
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   {segs.length ? segs.map((k) => `${t(SEGMENT_LABEL[k])} ${Math.round(e.segments[k]!)}′`).join(" · ") : t("Recorded by hand")}
-                  {bpm ? ` · ${t("metronome up to {0} bpm", bpm)}` : ""}
+                  {tempos.length ? ` · ${tempos.join(" · ")}` : ""}
                   {e.difficulty ? ` · ${t("difficulty {0}/5", e.difficulty)}` : ""}
                 </p>
               </div>

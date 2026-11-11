@@ -258,14 +258,14 @@
           "type": "score",
           "data": {
             "piece": "apoyando-latihan-1-2",
-            "note": "Latihan 1–2 · dawai terbuka, petik bergantian i–m (modul cetak hal. 6). Notasi interaktif menyusul."
+            "note": "Latihan 1–2 · dawai terbuka, petik bergantian i–m"
           }
         },
         {
           "type": "score",
           "data": {
             "piece": "apoyando-posisi-blok",
-            "note": "Cari posisi blok, lalu mainkan dengan petikan i–m apoyando (modul cetak hal. 6)."
+            "note": "Cari posisi blok, lalu mainkan dengan petikan i–m apoyando"
           }
         },
         {
@@ -320,7 +320,7 @@
           "type": "score",
           "data": {
             "piece": "apoyando-latihan-4-5",
-            "note": "Latihan 4 & 5 (modul cetak hal. 7). Notasi interaktif menyusul."
+            "note": "Latihan 4 & 5"
           }
         },
         {
@@ -356,7 +356,7 @@
           "type": "score",
           "data": {
             "piece": "apoyando-latihan-5-lanjutan",
-            "note": "Latihan 5 (lanjutan) (modul cetak hal. 8)."
+            "note": "Latihan 5 (lanjutan)"
           }
         },
         {
@@ -369,7 +369,7 @@
           "type": "score",
           "data": {
             "piece": "tirando-latihan-1-5",
-            "note": "Latihan 1–5 · dawai terbuka dengan petikan tirando (modul cetak hal. 8)."
+            "note": "Latihan 1–5 · dawai terbuka dengan petikan tirando"
           }
         },
         {
@@ -508,7 +508,7 @@
           "type": "score",
           "data": {
             "piece": "tanda-birama",
-            "note": "Latihan sukat 4/4, 2/4, dan 3/4 (modul cetak hal. 10)."
+            "note": "Latihan sukat 4/4, 2/4, dan 3/4"
           }
         },
         {
@@ -561,14 +561,7 @@
           "type": "score",
           "data": {
             "piece": "dawai-1-2",
-            "note": "Latihan nada dawai ① dan ② (modul cetak hal. 11)."
-          }
-        },
-        {
-          "type": "target",
-          "data": {
-            "title": "Target 3 tahap",
-            "markdown": "- **Tahap 1 · Pelan**: baca & petik per 2 birama.\n- **Tahap 2 · Sedang**: sambung tanpa berhenti.\n- **Tahap 3 · Tempo asli**: mainkan untuk guru atau teman.\n\nCatat tanggal setiap tahap tercapai di modul cetakmu."
+            "note": "Latihan nada dawai ① dan ②"
           }
         },
         {
@@ -615,21 +608,14 @@
           "type": "score",
           "data": {
             "piece": "lightly-row",
-            "note": "Lightly Row (modul cetak hal. 12). Notasi interaktif menyusul."
+            "note": "Lightly Row"
           }
         },
         {
           "type": "score",
           "data": {
             "piece": "aura-lee",
-            "note": "Aura Lee (modul cetak hal. 12). Notasi interaktif menyusul."
-          }
-        },
-        {
-          "type": "target",
-          "data": {
-            "title": "Target 3 tahap",
-            "markdown": "- **Tahap 1 · Pelan**: baca & petik per 2 birama.\n- **Tahap 2 · Sedang**: sambung tanpa berhenti.\n- **Tahap 3 · Tempo asli**: mainkan untuk guru atau teman.\n\nCatat tanggal setiap tahap tercapai di modul cetakmu."
+            "note": "Aura Lee"
           }
         },
         {
@@ -657,7 +643,7 @@
           "type": "score",
           "data": {
             "piece": "latihan-5-duet",
-            "note": "Latihan 5: Duet (modul cetak hal. 13)."
+            "note": "Latihan 5: Duet"
           }
         },
         {
@@ -705,14 +691,7 @@
           "type": "score",
           "data": {
             "piece": "dawai-3-4",
-            "note": "Latihan nada dawai ③ dan ④ (modul cetak hal. 14)."
-          }
-        },
-        {
-          "type": "target",
-          "data": {
-            "title": "Target 3 tahap",
-            "markdown": "- **Tahap 1 · Pelan**: baca & petik per 2 birama.\n- **Tahap 2 · Sedang**: sambung tanpa berhenti.\n- **Tahap 3 · Tempo asli**: mainkan untuk guru atau teman.\n\nCatat tanggal setiap tahap tercapai di modul cetakmu."
+            "note": "Latihan nada dawai ③ dan ④"
           }
         },
         {
@@ -759,14 +738,7 @@
           "type": "score",
           "data": {
             "piece": "moon-night",
-            "note": "Moon Night (modul cetak hal. 15). Notasi interaktif menyusul."
-          }
-        },
-        {
-          "type": "target",
-          "data": {
-            "title": "Target 3 tahap",
-            "markdown": "- **Tahap 1 · Pelan**: baca & petik per 2 birama.\n- **Tahap 2 · Sedang**: sambung tanpa berhenti.\n- **Tahap 3 · Tempo asli**: mainkan untuk guru atau teman.\n\nCatat tanggal setiap tahap tercapai di modul cetakmu."
+            "note": "Moon Night"
           }
         },
         {
@@ -808,14 +780,7 @@
           "type": "score",
           "data": {
             "piece": "dawai-5-6",
-            "note": "Latihan nada dawai ⑤ dan ⑥ (modul cetak hal. 16)."
-          }
-        },
-        {
-          "type": "target",
-          "data": {
-            "title": "Target 3 tahap",
-            "markdown": "- **Tahap 1 · Pelan**: baca & petik per 2 birama.\n- **Tahap 2 · Sedang**: sambung tanpa berhenti.\n- **Tahap 3 · Tempo asli**: mainkan untuk guru atau teman.\n\nCatat tanggal setiap tahap tercapai di modul cetakmu."
+            "note": "Latihan nada dawai ⑤ dan ⑥"
           }
         },
         {
@@ -862,7 +827,7 @@
           "type": "score",
           "data": {
             "piece": "petikan-rangkap",
-            "note": "Latihan petikan rangkap (modul cetak hal. 17)."
+            "note": "Latihan petikan rangkap"
           }
         },
         {
@@ -898,20 +863,13 @@
           "type": "score",
           "data": {
             "piece": "unit-1-latihan-4",
-            "note": "Latihan 4 (modul cetak hal. 18)."
+            "note": "Latihan 4"
           }
         },
         {
           "type": "text",
           "data": {
             "markdown": "Latihan ini memakai nada-nada di semua dawai yang sudah kamu pelajari. Mainkan per 2 birama dulu, lalu sambungkan."
-          }
-        },
-        {
-          "type": "target",
-          "data": {
-            "title": "Target 3 tahap",
-            "markdown": "- **Tahap 1 · Pelan**: baca & petik per 2 birama.\n- **Tahap 2 · Sedang**: sambung tanpa berhenti.\n- **Tahap 3 · Tempo asli**: mainkan untuk guru atau teman.\n\nCatat tanggal setiap tahap tercapai di modul cetakmu."
           }
         }
       ]

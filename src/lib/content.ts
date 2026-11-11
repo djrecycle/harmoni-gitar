@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { lessonBlockTypeEnum, lessonKindEnum } from "@/db/schema";
+import { copyrightStatusEnum, lessonBlockTypeEnum, lessonKindEnum } from "@/db/schema";
 import { blockDataSchemas } from "./blocks";
 
 /** Format of content/units/*.json (documented in content/README.md). */
@@ -38,3 +38,21 @@ export const unitFileSchema = z.object({
 });
 
 export type UnitFile = z.infer<typeof unitFileSchema>;
+
+const bpm = z.number().int().min(20).max(300);
+
+/** Format of content/pieces/<slug>.json (documented in content/pieces/README.md). */
+export const pieceFileSchema = z
+  .object({
+    slug,
+    title: z.string().min(1),
+    composer: z.string().optional(),
+    defaultBpm: bpm,
+    stageBpm: z.object({ "1": bpm, "2": bpm, "3": bpm }),
+    timeSignature: z.string().regex(/^\d+\/\d+$/, "timeSignature: like 4/4"),
+    copyrightStatus: z.enum(copyrightStatusEnum.enumValues),
+    sourceNote: z.string().optional(),
+  })
+  .refine((p) => p.stageBpm["1"] <= p.stageBpm["2"] && p.stageBpm["2"] <= p.stageBpm["3"], "stageBpm: stage 1 <= stage 2 <= stage 3");
+
+export type PieceFile = z.infer<typeof pieceFileSchema>;

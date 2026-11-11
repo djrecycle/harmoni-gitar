@@ -1,0 +1,5 @@
+# Dawai 2: jari 1-2-3-4 di posisi V, VII, IX (fret = posisi .. posisi+3), petik i-m apoyando.
+time 4/4
+tempo 60
+part Gitar
+<Posisi V> 2.5i:q 2.6m:q 2.7i:q 2.8m:q | 2.8i:q 2.7m:q 2.6i:q 2.5m:q | <Posisi VII> 2.7i:q 2.8m:q 2.9i:q 2.10m:q | 2.10i:q 2.9m:q 2.8i:q 2.7m:q | <Posisi IX> 2.9i:q 2.10m:q 2.11i:q 2.12m:q | 2.12i:q 2.11m:q 2.10i:q 2.9m:q | <Posisi V> 2.5i:q 2.6m:q 2.7i:q 2.8m:q | 2.5i:w

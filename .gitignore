@@ -7,3 +7,4 @@ uploads/
 backups/
 *.tsbuildinfo
 next-env.d.ts
+public/alphatab/

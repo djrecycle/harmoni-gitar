@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CircleCheck, Clock, Lock, PlayCircle } from "lucide-react";
+import { CircleCheck, Clock, Gift, Lock, PlayCircle } from "lucide-react";
 import { Badge, PageHeader, Progress } from "@/components/ui/misc";
-import { getUnitMap } from "@/lib/curriculum";
+import { EXTRA_SEGMENT, getExtraLessons, getUnitMap } from "@/lib/curriculum";
 import { LESSON_KIND_LABEL } from "@/lib/labels";
 import { requireStudent } from "@/lib/session";
 import { cn } from "@/lib/utils";
@@ -16,12 +16,52 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function LearnMapPage() {
   const student = await requireStudent();
   const t = await getT();
-  const map = await getUnitMap(student.id);
+  const [map, extras] = await Promise.all([getUnitMap(student.id), getExtraLessons(student.id)]);
 
   return (
     <>
       <PageHeader title={t("Learning map")} description={t("Work through the lessons in order. The next lesson opens when you finish the one before.")} />
       <div className="grid gap-6">
+        {extras.length > 0 && (
+          <section className="rounded-2xl border border-accent/40 bg-card p-4 shadow-xs sm:p-5">
+            <div className="mb-3 flex items-start gap-3">
+              <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-white">
+                <Gift className="size-5" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg font-extrabold">{t("Extra material")}</h2>
+                <p className="text-sm text-muted-foreground">{t("Material your teacher gave you, outside the units. You can open it any time.")}</p>
+              </div>
+            </div>
+            <ol className="grid gap-1.5">
+              {extras.map((l) => (
+                <li key={l.id}>
+                  <Link href={`/siswa/belajar/${EXTRA_SEGMENT}/${l.slug}`} className="flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-muted">
+                    <span
+                      className={cn(
+                        "grid size-8 shrink-0 place-items-center rounded-full text-sm font-bold",
+                        l.state === "done" ? "bg-success text-white" : "bg-accent/20 text-foreground",
+                      )}
+                    >
+                      {l.state === "done" ? <CircleCheck className="size-5" /> : <PlayCircle className="size-4.5" />}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-semibold">{l.title}</span>
+                      <span className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                        {t(LESSON_KIND_LABEL[l.kind])}
+                        {l.estimatedMinutes && (
+                          <span className="inline-flex items-center gap-0.5">
+                            <Clock className="size-3" /> {l.estimatedMinutes}′
+                          </span>
+                        )}
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
         {map.map((u) => (
           <section key={u.id} className={cn("rounded-2xl border bg-card p-4 shadow-xs sm:p-5", !u.unlocked && "opacity-75")}>
             <div className="mb-3 flex items-start gap-3">

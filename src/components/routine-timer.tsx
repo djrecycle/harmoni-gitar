@@ -7,12 +7,13 @@ import { toast } from "sonner";
 import { savePracticeSession } from "@/app/actions/practice";
 import { Metronome } from "@/components/metronome";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/input";
+import { Select, Textarea } from "@/components/ui/input";
 import { Progress } from "@/components/ui/misc";
 import { audioTime, scheduleChime, unlockAudio } from "@/lib/audio";
 import { SEGMENT_LABEL } from "@/lib/labels";
 import { ROUTINE_KEYS, type RoutineSegments } from "@/lib/routine";
-import { cn } from "@/lib/utils";
+import { GENERAL_BPM_KEY } from "@/lib/practice-keys";
+import { cn, shortLabel } from "@/lib/utils";
 import { useT } from "@/i18n/client";
 
 type Key = (typeof ROUTINE_KEYS)[number];
@@ -26,7 +27,7 @@ const SEGMENT_HINT: Record<Key, string> = {
 
 /** Timer state, saved in localStorage so a reload or a closed tab does not lose the session. */
 type State = {
-  v: 1;
+  v: 2;
   startedAt: string | null;
   index: number;
   /** Milliseconds spent per segment, not counting the current run. */
@@ -35,10 +36,25 @@ type State = {
   runningSince: number | null;
   finished: boolean;
   endedAt: string | null;
-  maxBpm: number | null;
+  /** Highest metronome tempo per piece id ("general" = no piece picked). */
+  maxBpm: Record<string, number>;
+  /** The piece picked next to the metronome. */
+  pieceId: string;
 };
 
-const fresh = (n: number): State => ({ v: 1, startedAt: null, index: 0, spent: Array(n).fill(0), runningSince: null, finished: false, endedAt: null, maxBpm: null });
+const fresh = (n: number, pieceId = GENERAL_BPM_KEY): State => ({
+  v: 2,
+  startedAt: null,
+  index: 0,
+  spent: Array(n).fill(0),
+  runningSince: null,
+  finished: false,
+  endedAt: null,
+  maxBpm: {},
+  pieceId,
+});
+
+export type PracticePiece = { id: string; title: string; targetBpm: number; stage: number };
 
 const mmss = (ms: number) => {
   const s = Math.max(0, Math.round(ms / 1000));
@@ -47,7 +63,18 @@ const mmss = (ms: number) => {
 
 const MOODS = ["😫", "😕", "😐", "🙂", "😄"];
 
-export function RoutineTimer({ userId, routine, learning }: { userId: string; routine: RoutineSegments; learning?: { title: string; href: string } | null }) {
+export function RoutineTimer({
+  userId,
+  routine,
+  learning,
+  pieces = [],
+}: {
+  userId: string;
+  routine: RoutineSegments;
+  learning?: { title: string; href: string } | null;
+  /** Pieces the student may practise, with the tempo of the next stage to reach. */
+  pieces?: PracticePiece[];
+}) {
   const t = useT();
   const { warmup, technique, etude, piece } = routine;
   const segments = useMemo(() => {
@@ -55,6 +82,7 @@ export function RoutineTimer({ userId, routine, learning }: { userId: string; ro
     return ROUTINE_KEYS.filter((k) => r[k] > 0).map((k) => ({ key: k, ms: r[k] * 60_000 }));
   }, [warmup, technique, etude, piece]);
   const storageKey = `hg-practice-${userId}`;
+  const defaultPieceId = pieces.at(-1)?.id ?? GENERAL_BPM_KEY;
   const [state, setState] = useState<State | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [savedMinutes, setSavedMinutes] = useState<number | null>(null);
@@ -63,17 +91,18 @@ export function RoutineTimer({ userId, routine, learning }: { userId: string; ro
 
   // Restore a session from this device (only if it is from the last 24 hours and the segments still match).
   useEffect(() => {
-    let s = fresh(segments.length);
+    // Start with the newest piece the student has (the one they are most likely working on).
+    let s = fresh(segments.length, defaultPieceId);
     try {
       const raw = localStorage.getItem(storageKey);
       const saved = raw ? (JSON.parse(raw) as State) : null;
-      if (saved?.v === 1 && saved.spent?.length === segments.length && saved.startedAt && Date.now() - Date.parse(saved.startedAt) < 86_400_000) s = saved;
+      if (saved?.v === 2 && saved.spent?.length === segments.length && saved.startedAt && Date.now() - Date.parse(saved.startedAt) < 86_400_000) s = saved;
     } catch {
       /* storage unavailable */
     }
     // Read browser storage after mount (not during render) to avoid a hydration mismatch.
     setState(s);
-  }, [storageKey, segments.length]);
+  }, [storageKey, segments.length, defaultPieceId]);
 
   useEffect(() => {
     if (!state) return;
@@ -169,6 +198,7 @@ export function RoutineTimer({ userId, routine, learning }: { userId: string; ro
   if (!segments.length) return <p className="text-sm text-muted-foreground">{t("Your practice timer has no minutes set. Ask your teacher.")}</p>;
   if (!state) return <div className="h-96 animate-pulse rounded-xl bg-muted" />;
 
+  const selected = pieces.find((p) => p.id === state.pieceId);
   const current = (i: number) => state.spent[i] + (i === state.index && state.runningSince ? now - state.runningSince : 0);
   const seg = segments[state.index];
   const remaining = seg.ms - current(state.index);
@@ -217,7 +247,7 @@ export function RoutineTimer({ userId, routine, learning }: { userId: string; ro
   function reset() {
     if (state?.startedAt && !window.confirm(t("Throw away this practice session?"))) return;
     cancelChimes();
-    setState(fresh(segments.length));
+    setState(fresh(segments.length, state?.pieceId));
   }
 
   if (savedMinutes !== null) {
@@ -245,8 +275,9 @@ export function RoutineTimer({ userId, routine, learning }: { userId: string; ro
       <SaveForm
         state={state}
         segments={segments.map((s) => s.key)}
+        pieces={pieces}
         onSaved={(minutes) => {
-          setState(fresh(segments.length)); // also clears the copy in localStorage
+          setState(fresh(segments.length, state.pieceId)); // also clears the copy in localStorage
           setSavedMinutes(minutes);
         }}
         onBack={() => setState({ ...state, finished: false, endedAt: null })}
@@ -332,12 +363,40 @@ export function RoutineTimer({ userId, routine, learning }: { userId: string; ro
         </ol>
       </div>
 
-      <Metronome compact onMaxBpm={(b) => setState((s) => (s ? { ...s, maxBpm: Math.max(s.maxBpm ?? 0, b) } : s))} />
+      <div className="grid gap-3">
+        {pieces.length > 0 && (
+          <label className="grid gap-1.5 rounded-xl border bg-card p-3 text-sm font-semibold shadow-xs">
+            {t("Piece you are practising")}
+            <Select value={selected?.id ?? GENERAL_BPM_KEY} onChange={(e) => setState({ ...state, pieceId: e.target.value })}>
+              <option value={GENERAL_BPM_KEY}>{t("No piece (metronome only)")}</option>
+              {pieces.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {shortLabel(p.title)}
+                </option>
+              ))}
+            </Select>
+            {selected && (
+              <span className="text-xs font-normal text-muted-foreground">
+                {selected.stage >= 3 ? t("All 3 stages reached. Keep it at {0} bpm.", selected.targetBpm) : t("Next target: stage {0} at {1} bpm.", selected.stage + 1, selected.targetBpm)}
+              </span>
+            )}
+          </label>
+        )}
+        {/* key: a new piece starts the metronome at that piece's target tempo */}
+        <Metronome
+          key={selected?.id ?? GENERAL_BPM_KEY}
+          compact
+          initialBpm={selected?.targetBpm ?? 60}
+          onMaxBpm={(b) =>
+            setState((s) => (s ? { ...s, maxBpm: { ...s.maxBpm, [s.pieceId]: Math.max(s.maxBpm[s.pieceId] ?? 0, b) } } : s))
+          }
+        />
+      </div>
     </div>
   );
 }
 
-function SaveForm({ state, segments, onSaved, onBack }: { state: State; segments: Key[]; onSaved: (minutes: number) => void; onBack: () => void }) {
+function SaveForm({ state, segments, pieces, onSaved, onBack }: { state: State; segments: Key[]; pieces: PracticePiece[]; onSaved: (minutes: number) => void; onBack: () => void }) {
   const t = useT();
   const [mood, setMood] = useState<number | null>(null);
   const [difficulty, setDifficulty] = useState<number | null>(null);
@@ -378,12 +437,15 @@ function SaveForm({ state, segments, onSaved, onBack }: { state: State; segments
             <span className="tabular-nums">{mmss(seconds[k] * 1000)}</span>
           </li>
         ))}
-        {state.maxBpm && (
-          <li className="flex justify-between rounded-lg bg-muted px-3 py-2">
-            <span>{t("Highest metronome tempo")}</span>
-            <span className="tabular-nums">{state.maxBpm} bpm</span>
+        {Object.entries(state.maxBpm).map(([id, bpm]) => (
+          <li key={id} className="flex justify-between gap-2 rounded-lg bg-muted px-3 py-2">
+            <span className="min-w-0 truncate">
+              {t("Highest metronome tempo")}
+              {id !== GENERAL_BPM_KEY && `: ${pieces.find((p) => p.id === id)?.title ?? ""}`}
+            </span>
+            <span className="shrink-0 tabular-nums">{bpm} bpm</span>
           </li>
-        )}
+        ))}
       </ul>
 
       <fieldset>

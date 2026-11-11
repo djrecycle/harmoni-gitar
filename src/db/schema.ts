@@ -8,6 +8,7 @@ import {
   jsonb,
   pgEnum,
   pgTable,
+  primaryKey,
   smallint,
   text,
   time,
@@ -16,6 +17,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import type { RoutineSegments } from "@/lib/routine";
+import type { ScoreDoc } from "@/lib/score/doc";
 
 /*
  * Database schema, following docs/RENCANA_TEKNIS.md section 5.
@@ -208,13 +210,16 @@ export const unit = pgTable("unit", {
   ...timestamps,
 });
 
+/**
+ * A lesson. Lessons from content/units/*.json have createdBy = null and are managed by `npm run db:seed`.
+ * Lessons the teacher writes in the app (Materi) have createdBy set; the seed never touches them.
+ * unitId = null: extra material ("materi tambahan") that only the students in lesson_student see.
+ */
 export const lesson = pgTable(
   "lesson",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    unitId: uuid("unit_id")
-      .notNull()
-      .references(() => unit.id, { onDelete: "cascade" }),
+    unitId: uuid("unit_id").references(() => unit.id, { onDelete: "cascade" }),
     order: smallint("order").notNull(),
     slug: text("slug").notNull(),
     title: text("title").notNull(),
@@ -222,9 +227,31 @@ export const lesson = pgTable(
     kind: lessonKindEnum("kind").notNull(),
     estimatedMinutes: smallint("estimated_minutes"),
     published: boolean("published").notNull().default(false),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
     ...timestamps,
   },
-  (t) => [uniqueIndex("lesson_unit_slug_unique").on(t.unitId, t.slug), index("lesson_unit_order_idx").on(t.unitId, t.order)],
+  (t) => [
+    uniqueIndex("lesson_unit_slug_unique").on(t.unitId, t.slug),
+    uniqueIndex("lesson_extra_slug_unique")
+      .on(t.slug)
+      .where(sql`${t.unitId} is null`),
+    index("lesson_unit_order_idx").on(t.unitId, t.order),
+  ],
+);
+
+/** Extra material (a lesson without a unit) given to one student. */
+export const lessonStudent = pgTable(
+  "lesson_student",
+  {
+    lessonId: uuid("lesson_id")
+      .notNull()
+      .references(() => lesson.id, { onDelete: "cascade" }),
+    studentId: text("student_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.lessonId, t.studentId] }), index("lesson_student_student_idx").on(t.studentId)],
 );
 
 /** One content block of a lesson. The shape of `data` depends on `type` (see content/README.md). */
@@ -258,6 +285,10 @@ export const piece = pgTable("piece", {
   timeSignature: text("time_signature"),
   copyrightStatus: copyrightStatusEnum("copyright_status").notNull(),
   sourceNote: text("source_note"),
+  /** Set for pieces the teacher made in the app (the seed never touches them); null = from content/pieces. */
+  createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+  /** The score editor's document (src/lib/score/doc.ts); null for uploaded MusicXML and content files. */
+  scoreDoc: jsonb("score_doc").$type<ScoreDoc>(),
   ...timestamps,
 });
 

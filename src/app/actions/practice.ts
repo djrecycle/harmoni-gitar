@@ -1,11 +1,12 @@
 "use server";
 
-import { and, eq, gte } from "drizzle-orm";
+import { and, eq, gte, sql } from "drizzle-orm";
 import { refresh } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db";
 import { zodError } from "@/lib/action-result-server";
 import { fail, succeed, type ActionResult } from "@/lib/action-result";
+import { getAvailablePieces } from "@/lib/pieces";
 import { GENERAL_BPM_KEY } from "@/lib/practice";
 import { ROUTINE_KEYS } from "@/lib/routine";
 import { requireStudent } from "@/lib/session";
@@ -21,7 +22,8 @@ const timerSchema = z.object({
   endedAt: z.iso.datetime(),
   /** Seconds actually spent per segment. */
   seconds: z.object(Object.fromEntries(ROUTINE_KEYS.map((k) => [k, z.number().int().min(0).max(MAX_SECONDS)])) as Record<(typeof ROUTINE_KEYS)[number], z.ZodNumber>),
-  maxBpm: z.number().int().min(20).max(300).nullable(),
+  /** Highest metronome tempo per piece id, or under "general" when no piece was picked. */
+  maxBpm: z.record(z.string().max(40), z.number().int().min(20).max(300)).default({}),
   mood: rating,
   difficulty: rating,
   note,
@@ -50,17 +52,32 @@ export async function savePracticeSession(input: TimerSession): Promise<ActionRe
   const [dup] = await db.select({ id: P.id }).from(P).where(and(eq(P.studentId, student.id), eq(P.startedAt, startedAt))).limit(1);
   if (dup) return succeed(t("Practice saved to your journal."));
 
+  // Only pieces this student may open count; anything else is dropped.
+  const available = new Set((await getAvailablePieces(student.id)).map((p) => p.id));
+  const maxBpm = Object.fromEntries(Object.entries(v.maxBpm).filter(([k]) => k === GENERAL_BPM_KEY || available.has(k)));
+  const pieceIds = Object.keys(maxBpm).filter((k) => k !== GENERAL_BPM_KEY);
+
   await db.insert(P).values({
     studentId: student.id,
     startedAt,
     endedAt,
     totalSeconds: total,
     segments: Object.fromEntries(ROUTINE_KEYS.filter((k) => v.seconds[k] > 0).map((k) => [k, Math.round((v.seconds[k] / 60) * 10) / 10])),
-    maxBpm: v.maxBpm ? { [GENERAL_BPM_KEY]: v.maxBpm } : {},
+    pieceIds,
+    maxBpm,
     mood: v.mood,
     difficulty: v.difficulty,
     studentNote: v.note || null,
   });
+  // Best tempo per piece: keep the highest ever.
+  const PP = schema.pieceProgress;
+  for (const pieceId of pieceIds) {
+    const bpm = maxBpm[pieceId];
+    await db
+      .insert(PP)
+      .values({ studentId: student.id, pieceId, bestBpm: bpm })
+      .onConflictDoUpdate({ target: [PP.studentId, PP.pieceId], set: { bestBpm: sql`greatest(coalesce(${PP.bestBpm}, 0), ${bpm})` } });
+  }
   refresh();
   return succeed(t("Practice saved to your journal."));
 }

@@ -1,0 +1,7 @@
+# Dawai 1 terbuka, i-m bergantian. Hitung keras-keras, ketukan 1 paling kuat.
+time 4/4
+tempo 72
+part Gitar
+<Sukat 4/4> 1.0i:q 1.0m:q 1.0i:q 1.0m:q | 1.0i:h 1.0m:h | 1.0i:q r:q 1.0m:q r:q | 1.0i:w !!
+T2/4 <Sukat 2/4> 1.0i:q 1.0m:q | 1.0i:h | 1.0i:q 1.0m:q | 1.0i:h !!
+T3/4 <Sukat 3/4> 1.0i:q 1.0m:q 1.0i:q | 1.0i:h 1.0m:q | 1.0i:q 1.0m:q 1.0i:q | 1.0i:h.

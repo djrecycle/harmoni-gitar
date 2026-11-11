@@ -8,8 +8,7 @@ import { addDays, today } from "./utils";
  * Days are WIB calendar days of `startedAt`.
  */
 
-/** Key in practice_session.maxBpm for the metronome tempo when no piece is picked (pieces arrive in stage 2). */
-export const GENERAL_BPM_KEY = "general";
+export { GENERAL_BPM_KEY } from "./practice-keys";
 
 const wibDay = sql<string>`to_char(${schema.practiceSession.startedAt} at time zone 'Asia/Jakarta', 'YYYY-MM-DD')`;
 

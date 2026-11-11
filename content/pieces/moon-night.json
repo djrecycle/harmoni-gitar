@@ -1,0 +1,14 @@
+{
+  "slug": "moon-night",
+  "title": "Moon Night (Au clair de la lune)",
+  "composer": "Lagu rakyat Prancis",
+  "defaultBpm": 80,
+  "stageBpm": {
+    "1": 50,
+    "2": 65,
+    "3": 80
+  },
+  "timeSignature": "4/4",
+  "copyrightStatus": "public_domain",
+  "sourceNote": "Melodi lagu rakyat Prancis (domain publik), ditulis ulang. Suara kedua (Gitar 2) aransemen sendiri."
+}

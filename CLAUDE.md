@@ -18,6 +18,7 @@ Next.js versi ini punya perubahan besar dari versi lama: baca dokumen di `node_m
 - Database: `docker compose --env-file .env.docker up -d db` (PostgreSQL di port **5433**, database `harmoni_gitar`)
 - Semua lewat Docker: `docker compose --env-file .env.docker up -d --build`
 - Migrasi: `npm run db:generate` lalu `npm run db:migrate`
+- Kurikulum & notasi: `npm run scores:build` (`.notes` → MusicXML) lalu `npm run db:seed`; lewat Docker: `docker compose --env-file .env.docker --profile tools run --rm tools`
 - Cek tipe: `npm run typecheck`
 
 Port dan nama database sengaja berbeda dari LMS Harmoni (3000 / 5432 / `harmoni`) agar keduanya bisa berjalan bersamaan.
@@ -31,6 +32,7 @@ Port dan nama database sengaja berbeda dari LMS Harmoni (3000 / 5432 / `harmoni`
 - **Pembayaran: tabel ada, fitur mati.** Semua menu, halaman, dan action pembayaran harus mengecek `isFeatureEnabled("payments")`; saat `false` → menu tersembunyi, route 404, action ditolak.
 - **Uang disimpan sebagai integer rupiah.**
 - **Notasi:** hanya MusicXML hasil tulis ulang dengan `copyrightStatus` terisi. Jangan memasukkan scan notasi dari buku sumber.
+- **Materi buatan guru** (`lesson.createdBy` / `piece.createdBy` terisi) dikelola di aplikasi (`/guru/materi`); seed tidak boleh mengubah atau menghapusnya.
 - Teks tampilan dalam bahasa Indonesia (bawaan) lewat sistem i18n; nama tabel/kolom/kode dalam bahasa Inggris.
 - Tampilan diprioritaskan untuk HP.
 

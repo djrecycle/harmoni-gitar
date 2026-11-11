@@ -1,0 +1,13 @@
+{
+  "slug": "dawai-5-6",
+  "title": "Nada Bas Dawai ⑤ dan ⑥",
+  "defaultBpm": 72,
+  "stageBpm": {
+    "1": 50,
+    "2": 60,
+    "3": 72
+  },
+  "timeSignature": "4/4",
+  "copyrightStatus": "own_work",
+  "sourceNote": "Latihan baru buatan sendiri untuk Harmoni Gitar (bukan salinan latihan buku sumber); tujuannya sama dengan latihan modul hal. 16."
+}

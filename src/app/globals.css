@@ -149,3 +149,11 @@
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* Music symbols (SMuFL) for the score editor's buttons: the Bravura font that alphaTab ships (public/alphatab/font). */
+@font-face {
+  font-family: "Bravura";
+  src: url("/alphatab/font/Bravura.woff2") format("woff2"), url("/alphatab/font/Bravura.woff") format("woff");
+  font-display: block;
+}
+.font-music { font-family: "Bravura", serif; font-feature-settings: normal; line-height: 1; }

@@ -1,0 +1,13 @@
+{
+  "slug": "unit-1-latihan-4",
+  "title": "Latihan 4 (penutup Unit 1)",
+  "defaultBpm": 80,
+  "stageBpm": {
+    "1": 50,
+    "2": 65,
+    "3": 80
+  },
+  "timeSignature": "3/4",
+  "copyrightStatus": "own_work",
+  "sourceNote": "Latihan baru buatan sendiri untuk Harmoni Gitar (bukan salinan latihan buku sumber); tujuannya sama dengan latihan modul hal. 18."
+}

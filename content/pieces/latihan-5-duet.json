@@ -1,0 +1,13 @@
+{
+  "slug": "latihan-5-duet",
+  "title": "Latihan 5: Duet",
+  "defaultBpm": 76,
+  "stageBpm": {
+    "1": 50,
+    "2": 63,
+    "3": 76
+  },
+  "timeSignature": "4/4",
+  "copyrightStatus": "own_work",
+  "sourceNote": "Latihan baru buatan sendiri untuk Harmoni Gitar (bukan salinan latihan buku sumber); tujuannya sama dengan latihan modul hal. 13."
+}

@@ -56,7 +56,8 @@ Satu file per unit.
 Detail tambahan:
 - `checklist`: 1–30 butir; centang siswa disimpan per butir (urutan butir jangan diubah setelah dipakai siswa).
 - `quiz`: 2–6 pilihan, `answer` = indeks jawaban benar (mulai 0), `explain` opsional (tampil setelah benar). Jawaban tidak disimpan.
-- `score`: `{ "piece": "<slug>", "note": "…" }`. Sampai alphaTab tersedia (Tahap 2) yang tampil hanya `note`.
+- `score`: `{ "piece": "<slug>", "note": "…" }`. Tampil sebagai pemutar notasi + tiga kotak tahap. Bila karyanya belum ada
+  (atau statusnya `unknown`), yang tampil hanya `note` dengan keterangan "segera hadir".
 
 Bentuk `data` divalidasi saat `npm run db:seed` (`src/lib/blocks.ts`): blok yang tidak sesuai jenisnya membuat seed gagal.
 

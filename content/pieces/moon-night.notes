@@ -1,0 +1,9 @@
+# Lagu rakyat Prancis. Sampai D.C. al Fine, kembali ke awal dan berhenti di Fine.
+time 4/4
+tempo 80
+part Gitar 1
+[C] 2.1:q 2.1:q 2.1:q 2.3:q | [G7] 1.0:h 2.3:h | [C] 2.1:q [G7] 1.0:q 2.3:q 2.3:q | [C] 2.1:w {Fine} !!
+[Dm] 2.3:q 2.3:q 2.3:q 2.3:q | [Dm] 3.2:h 3.2:h | [D7] 2.3:q 2.1:q 2.0:q 3.2:q | [G] 3.0:w {D.C. al Fine}
+part Gitar 2
+4.2:q 4.2:q 4.2:q 4.3:q | 3.0:h 4.3:h | 4.2:q 3.0:q 4.3:q 4.3:q | 4.2:w !!
+4.3:q 4.3:q 4.3:q 4.3:q | 4.3:h 4.3:h | 4.0:q 4.2:q 4.0:q 4.0:q | 4.0:w

@@ -70,7 +70,7 @@ export type KeyPrefix = (typeof KEY_PREFIXES)[number];
 
 /** A valid storage key: only under one of KEY_PREFIXES, without `..`. */
 export function isValidKey(key: string) {
-  return /^(media|score|recording|payment)\/[A-Za-z0-9_-]+(\/[A-Za-z0-9_-]+)*\.[A-Za-z0-9]{2,5}$/.test(key) && !key.includes("..");
+  return /^(media|score|recording|payment)\/[A-Za-z0-9_-]+(\/[A-Za-z0-9_-]+)*\.[A-Za-z0-9]{2,8}$/.test(key) && !key.includes("..");
 }
 
 export async function saveFile(key: string, data: Buffer, contentType: string) {

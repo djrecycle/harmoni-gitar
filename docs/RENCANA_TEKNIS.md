@@ -92,12 +92,13 @@ Nama tabel bahasa Inggris (seperti Harmoni), label tampilan bahasa Indonesia. Se
 | Tabel | Kolom penting |
 |---|---|
 | `unit` | `id`, `order`, `slug`, `title` (Dasar-dasar, Teknik 1, Etude 1, Lagu), `color`, `description` |
-| `lesson` | `id`, `unitId`, `order`, `slug`, `title`, `summary`, `kind` (`theory`/`technique`/`etude`/`piece`/`check`), `estimatedMinutes`, `published` |
+| `lesson` | `id`, `unitId` (kosong = materi tambahan), `order`, `slug`, `title`, `summary`, `kind` (`theory`/`technique`/`etude`/`piece`/`check`), `estimatedMinutes`, `published`, `createdBy` (terisi = dibuat guru di aplikasi) |
+| `lesson_student` | Materi tambahan untuk siswa tertentu: `lessonId`, `studentId` |
 | `lesson_block` | `id`, `lessonId`, `order`, `type` (`text`, `image`, `video`, `score`, `checklist`, `quiz`, `tip`, `focus`, `target`), `data` (jsonb, isi tergantung `type`) |
-| `piece` | Karya/latihan musik: `id`, `title`, `composer`, `musicXmlFileKey`, `defaultBpm`, `stageBpm` (jsonb: tahap 1/2/3), `timeSignature`, `copyrightStatus` (`public_domain`/`own_work`/`licensed`/`unknown`), `sourceNote` |
+| `piece` | Karya/latihan musik: `id`, `title`, `composer`, `musicXmlFileKey`, `defaultBpm`, `stageBpm` (jsonb: tahap 1/2/3), `timeSignature`, `copyrightStatus` (`public_domain`/`own_work`/`licensed`/`unknown`), `sourceNote`, `createdBy` (terisi = dibuat guru), `scoreDoc` (jsonb: dokumen editor partitur; kosong untuk unggahan MusicXML dan file konten) |
 | `unit_check_item` | Butir "Cek Unit" (mis. 12 kemampuan Unit 1): `unitId`, `order`, `text` |
 
-Catatan: konten modul dimasukkan lewat **skrip seed dari file JSON/Markdown di repo** (`content/units/*.json`), sehingga kurikulum bisa direvisi lewat Git. Editor kurikulum di dashboard guru bisa menyusul.
+Catatan: konten modul dimasukkan lewat **skrip seed dari file JSON/Markdown di repo** (`content/units/*.json`), sehingga kurikulum bisa direvisi lewat Git. Guru juga bisa membuat materi dan partitur sendiri di aplikasi (halaman **Materi**, lihat catatan di bagian 8); baris buatan guru (`createdBy` terisi) **tidak pernah disentuh seed**, dan pelajaran guru di sebuah unit diberi nomor urut setelah pelajaran dari file.
 
 ### 5.3 Kemajuan siswa
 | Tabel | Kolom penting |
@@ -162,7 +163,7 @@ Prefiks route dalam bahasa Indonesia agar mudah dibaca. Semua halaman dipriorita
 
 **Siswa (`/siswa`)**
 - `/siswa` beranda: tugas minggu ini, tombol **Mulai latihan**, streak, jadwal les berikutnya, catatan guru terakhir
-- `/siswa/belajar` peta unit (terkunci/terbuka) → `/siswa/belajar/[unit]/[pelajaran]`
+- `/siswa/belajar` peta unit (terkunci/terbuka) + materi tambahan → `/siswa/belajar/[unit]/[pelajaran]`, materi tambahan di `/siswa/belajar/tambahan/[pelajaran]`
 - `/siswa/latihan` sesi latihan: timer rutinitas 4 segmen, pilih materi, metronom, notasi alphaTab, tuner
 - `/siswa/tugas`, `/siswa/tugas/[id]` (rekam & kirim)
 - `/siswa/jurnal` riwayat latihan + pelacak mingguan
@@ -175,13 +176,13 @@ Prefiks route dalam bahasa Indonesia agar mudah dibaca. Semua halaman dipriorita
 - `/guru/tugas` buat tugas untuk satu/beberapa siswa
 - `/guru/penilaian` antrean rekaman → form rubrik
 - `/guru/jadwal` kalender mingguan, kelola `lesson_slot`, absensi per pertemuan
-- `/guru/kurikulum` lihat unit/pelajaran/karya (editor menyusul)
+- `/guru/materi` (dulu `/guru/kurikulum`, dialihkan otomatis): unit/pelajaran, materi tambahan, partitur. `/guru/materi/pelajaran/baru` (`?unit=`, `?siswa=`), `/guru/materi/pelajaran/[id]` (ubah), `/guru/materi/pelajaran/[id]/pratinjau`, `/guru/materi/partitur/baru` (editor), `/guru/materi/partitur/unggah`, `/guru/materi/partitur/[slug]` (pratinjau), `/guru/materi/partitur/[slug]/ubah`
 - `/guru/pembayaran` **(tersembunyi, flag)**
 - `/guru/pengaturan` profil studio, feature flag, undangan aktif, durasi default timer rutinitas
 
 ## 7. Fitur latihan: detail teknis
 
-- **Notasi (alphaTab)**: sumber MusicXML disimpan sebagai file (`piece.musicXmlFileKey`). Tampilkan notasi balok + tab, tombol putar/jeda, pengatur tempo (persentase atau bpm), loop bagian (birama A–B), kursor. Muat alphaTab hanya di halaman yang butuh (dynamic import, `ssr: false`).
+- **Notasi (alphaTab)**: sumber MusicXML disimpan sebagai file (`piece.musicXmlFileKey`, `score/<slug>-<hash>.musicxml`, disalin oleh `npm run db:seed`). Tampilkan notasi balok + tab, tombol putar/jeda, pengatur tempo (persentase atau bpm), loop bagian (birama A–B), kursor. Muat alphaTab hanya di halaman yang butuh (dynamic import, `ssr: false`).
 - **Metronom**: Web Audio API langsung (`src/lib/audio.ts`, penjadwal *look-ahead*; tanpa unduhan sampel sehingga bisa offline), bukan `tone`. Ada **tangga tempo** ("+4 bpm"; tombol *Tanpa salah*/*Ada salah*, 3× tanpa salah → naik 4 bpm otomatis). Tempo tertinggi yang benar-benar dimainkan (≥ 10 detik) disimpan ke `practice_session.maxBpm`. Selama belum ada karya (Tahap 2) kuncinya `"general"`; mulai Tahap 2 kuncinya `pieceId` → memperbarui `piece_progress.bestBpm`.
 - **Timer rutinitas**: 4 segmen dengan durasi **default 5/10/10/10 menit** (pemanasan/teknik/etude/lagu). Guru bisa mengubah default untuk semua siswa di Pengaturan, dan mengubah khusus untuk satu siswa di profilnya (`student_profile.routineSegments`). Ada bunyi penanda pergantian segmen (dijadwalkan di jam audio, jadi tetap berbunyi saat tab di belakang) dan getar di HP; waktu dihitung dari jam perangkat dan disimpan di `localStorage`, jadi sesi tidak hilang saat halaman dimuat ulang. Saat selesai → isi suasana hati/kesulitan/catatan → simpan `practice_session` → muncul di jurnal. Siswa juga bisa mencatat latihan manual (sampai 7 hari ke belakang) dan menghapus catatan 7 hari terakhir.
 - **Rekaman**: `MediaRecorder` (pola `recorder.tsx` / `free-recorder.tsx` Harmoni), batasi durasi (mis. 5 menit) dan ukuran file, unggah ke storage.
@@ -207,17 +208,35 @@ Setiap tahap selesai = bisa dipakai siswa sungguhan.
   - Isi pelajaran Unit 1 berupa teks, tabel, checklist, kuis, tips, dan target; notasi latihan memakai blok `score` yang untuk sementara merujuk ke halaman modul cetak (alphaTab di Tahap 2). Gambar dari PDF modul **tidak** dimasukkan karena asal-usulnya (buku sumber) belum jelas; foto/gambar buatan sendiri bisa ditambahkan sebagai blok `image`.
   - Kuis hanya umpan balik langsung, jawabannya tidak disimpan. "Tandai selesai" tidak mewajibkan checklist penuh; Cek Unit wajib terisi semua.
   - Guru bisa membuka/mengunci unit secara manual di profil siswa, selain lewat persetujuan Cek Unit.
-  - Halaman `/guru/kurikulum` belum dibuat (tidak wajib untuk Tahap 1).
+  - Halaman `/guru/kurikulum` belum dibuat (tidak wajib untuk Tahap 1); sekarang menjadi `/guru/materi`.
 
 **Tahap 2: Notasi interaktif**
 - alphaTab + karya Unit 1 dalam MusicXML (hasil tulis ulang notasi), target 3 tahap per karya, `piece_progress`.
 - Unit 2–4 dimasukkan bertahap sesuai selesainya notasi.
+- **Status (11 Nov 2026): Unit 1 selesai dan diuji di browser.** Unit 2–4 belum: notasinya perlu ditulis ulang dari partitur yang benar (Carulli, Sor, Aguado, Giuliani, dst.), lebih aman lewat MuseScore oleh guru daripada ditulis dari ingatan.
+- Catatan Tahap 2:
+  - alphaTab **tidak di-bundle**: `scripts/copy-alphatab.mjs` (jalan otomatis sebelum `dev`/`build`) menyalin file browser alphaTab ke `public/alphatab/` (tidak masuk git), lalu pemutar memuatnya saat halaman dibuka. Dengan begitu worker, audio worklet, font Bravura, dan soundfont ditemukan tanpa plugin bundler (Turbopack tidak mem-bundle audio worklet).
+  - Tanda "♪ alphaTab.net" di notasi adalah syarat lisensi alphaTab: jangan disembunyikan.
+  - Pemutar (`src/components/score/score-player.tsx`): notasi + tab (tab bisa disembunyikan), putar/jeda/stop, tempo per tahap atau ±4 bpm, metronom & hitungan awal, ulangi birama A–B, bisukan per gitar (duet), kursor mengikuti not, satu pemutar berbunyi pada satu waktu. Notasi digambar hitam di atas putih juga di mode gelap.
+  - Tahap per karya: siswa mencentang Tahap 1–3 (tanggal tersimpan di `stageDates`); naik tahap mereset `teacherVerified`. Guru bisa memperbaiki tahap dan menandai "Diperiksa" di profil siswa.
+  - Timer latihan punya pilihan karya: metronom mulai di tempo target tahap berikutnya, tempo tertinggi disimpan per karya di `practice_session.maxBpm` (kunci `pieceId`, atau `"general"`) dan memperbarui `piece_progress.bestBpm`.
+  - Karya hanya bisa dibuka siswa bila dipakai blok `score` di pelajaran yang sudah terbuka, dan statusnya bukan `unknown`.
+  - Halaman baru: `/siswa/karya`, `/siswa/karya/[slug]`, `/guru/kurikulum`, `/guru/kurikulum/[slug]` (pratinjau guru; sekarang `/guru/materi` dan `/guru/materi/partitur/[slug]`).
+  - Notasi Unit 1 ditulis dalam format teks ringkas (`content/pieces/*.notes`) dan diubah ke MusicXML oleh `npm run scores:build` (lihat `content/pieces/README.md`).
+
+**Materi buatan guru (dikerjakan lebih awal atas permintaan, 11 Nov 2026)**
+- Menu guru "Kurikulum" diganti **Materi**. Guru membuat pelajaran sendiri (teks, partitur, tips/perhatikan/target, daftar periksa, kuis, video, gambar) dan menaruhnya **di sebuah unit** (untuk semua siswa, sesuai urutan, sebelum Cek Unit) atau sebagai **materi tambahan** untuk siswa yang dipilih (selalu terbuka, tanpa urutan). Pelajaran jenis `check` tetap hanya dari file konten.
+- **Editor partitur visual** mirip MuseScore (`src/components/score/editor/`): notasi + tab digambar alphaTab dan bisa diklik, toolbar nilai not (simbol font Bravura), titik, tanda diam, mode akor, mode sisip, hapus, urungkan/ulangi, papan fret (ketuk dawai + fret), pintasan keyboard (angka = fret, ↑/↓ dawai, Alt+2…6 nilai not), birama (sukat, garis birama, Fine/D.C., penanda bagian, tambah/hapus), nama akor, jari p-i-m-a, suara 2, gitar 2 (duet), tanda mula, birama gantung, putar dari birama terpilih. Seperti MuseScore, birama yang belum penuh diisi tanda diam; birama tidak bisa melebihi sukatnya. Dokumen editor disimpan di `piece.scoreDoc`, MusicXML selalu dibuat ulang di server (`src/lib/score/doc.ts` → `src/lib/score/musicxml.ts`, penulis MusicXML yang sama dengan `npm run scores:build`).
+- **Unggah MusicXML** dari MuseScore (`.musicxml`/`.xml`/`.mxl`, maks. 3 MB): file dibaca alphaTab di browser untuk mengisi judul, tempo, dan sukat. Partitur unggahan tidak bisa diedit visual; filenya bisa diganti.
+- Partitur hanya bisa dihapus jika tidak dipakai pelajaran mana pun. Status hak cipta wajib dipilih; `unknown` tetap disembunyikan dari siswa.
+- Profil siswa menampilkan materi tambahannya + tombol "Beri materi tambahan".
+- Belum ada: ikatan (tie) antarbirama, legato/slur, triol, mengatur urutan pelajaran guru di dalam unit (urut sesuai waktu dibuat), membuat unit baru dari aplikasi.
 
 **Tahap 3: Tugas, rekaman, penilaian**
 - Guru memberi tugas per siswa, siswa merekam & mengirim, guru menilai dengan rubrik 5 aspek, notifikasi dalam aplikasi.
 
 **Tahap 4: Pelengkap**
-- Tuner, pengingat latihan (Web Push), editor kurikulum di dashboard.
+- Tuner, pengingat latihan (Web Push). (Editor materi sudah dibuat lebih awal, lihat "Materi buatan guru".)
 - Pembayaran: **tinggal dinyalakan** dan diuji ketika diputuskan dipakai.
 
 ## 9. Konten dan hak cipta

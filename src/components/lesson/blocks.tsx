@@ -2,7 +2,9 @@ import { Crosshair, Lightbulb, Music, Target } from "lucide-react";
 import { Markdown } from "@/components/markdown";
 import { Checklist } from "@/components/lesson/checklist";
 import { Quiz } from "@/components/lesson/quiz";
+import { PieceCard } from "@/components/score/piece-card";
 import { parseBlock, type BlockType } from "@/lib/blocks";
+import type { PieceView } from "@/lib/pieces";
 import { cn } from "@/lib/utils";
 import { getT } from "@/i18n/server";
 
@@ -15,7 +17,18 @@ const callout = {
 } as const;
 
 /** All blocks of a lesson, top to bottom. A block whose data does not match its type is skipped. */
-export async function LessonBlocks({ blocks, checklists, readOnly }: { blocks: LessonBlockRow[]; checklists: Map<string, number[]>; readOnly?: boolean }) {
+export async function LessonBlocks({
+  blocks,
+  checklists,
+  pieces,
+  readOnly,
+}: {
+  blocks: LessonBlockRow[];
+  checklists: Map<string, number[]>;
+  /** Pieces this viewer may open, by slug. */
+  pieces: Map<string, PieceView>;
+  readOnly?: boolean;
+}) {
   const t = await getT();
   return (
     <div className="grid gap-4">
@@ -72,13 +85,18 @@ export async function LessonBlocks({ blocks, checklists, readOnly }: { blocks: L
             );
           }
           case "score": {
-            // Interactive notation (alphaTab) arrives in stage 2.
             const d = parseBlock("score", b.data);
+            const piece = d && pieces.get(d.piece);
+            if (piece) return <PieceCard key={b.id} piece={piece} note={d.note} withStages={!readOnly} />;
+            // No notation yet (or not shown because its copyright status is unclear).
             return (
               d && (
                 <div key={b.id} className="flex items-start gap-3 rounded-xl border border-dashed bg-card p-4 text-sm">
                   <Music className="mt-0.5 size-5 shrink-0 text-primary" />
-                  <p>{d.note ?? t("The interactive notation for this exercise is coming soon. Use the printed module for now.")}</p>
+                  <p>
+                    {d.note && <span className="font-semibold">{d.note}. </span>}
+                    {t("The interactive notation for this exercise is coming soon. Use the printed module for now.")}
+                  </p>
                 </div>
               )
             );
