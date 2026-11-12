@@ -99,3 +99,42 @@ export function startMetronome(getBpm: () => number, beatsPerBar: number, onBeat
     visual.forEach(clearTimeout);
   };
 }
+
+/**
+ * A plucked-string reference tone at `freq` (Karplus–Strong: a burst of noise through a short, slowly damped
+ * delay line), so the tuner can play the note a string should sound. Returns a function that stops it.
+ */
+export function playPluck(freq: number, seconds = 2.5): () => void {
+  const c = context();
+  if (!c) return () => {};
+  const sr = c.sampleRate;
+  const len = Math.floor(sr * seconds);
+  const buffer = c.createBuffer(1, len, sr);
+  const y = buffer.getChannelData(0);
+  // Each sample = damped average of the samples half a sample either side of one period ago: the loop delay is
+  // then exactly one period, so the pitch is right to a fraction of a cent (checked against detectPitch).
+  const P = sr / freq;
+  const first = Math.ceil(P) + 2;
+  for (let i = 0; i < first && i < len; i++) y[i] = (Math.random() * 2 - 1) * 0.5;
+  // Low notes ring longer; below 1 it keeps a nylon-string softness.
+  const decay = 0.996 + Math.min(0.0035, 40 / freq / 1000);
+  const at = (pos: number) => {
+    const k = Math.floor(pos);
+    return y[k] + (y[k + 1] - y[k]) * (pos - k);
+  };
+  for (let i = first; i < len; i++) y[i] = decay * 0.5 * (at(i - (P - 0.5)) + at(i - (P + 0.5)));
+  const src = c.createBufferSource();
+  const gain = c.createGain();
+  gain.gain.setValueAtTime(0.8, c.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + seconds);
+  src.buffer = buffer;
+  src.connect(gain).connect(c.destination);
+  src.start();
+  return () => {
+    try {
+      src.stop();
+    } catch {
+      /* already stopped */
+    }
+  };
+}

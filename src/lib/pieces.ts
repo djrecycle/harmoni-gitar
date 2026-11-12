@@ -119,7 +119,20 @@ async function piecesForLessons(map: MapUnit[], extras: MapLesson[], lessonFilte
 /** Pieces a student may open now (from lessons that are open or done), with their progress. */
 export async function getAvailablePieces(studentId: string, map?: MapUnit[], extras?: MapLesson[]): Promise<PieceView[]> {
   const [m, x] = await Promise.all([map ?? getUnitMap(studentId), extras ?? getExtraLessons(studentId)]);
-  return piecesForLessons(m, x, (s) => s !== "locked", studentId);
+  const fromLessons = await piecesForLessons(m, x, (s) => s !== "locked", studentId);
+  // A piece the teacher gave as an assignment is open too, even before its lesson (lesson = null).
+  const assigned = await db
+    .select({ p: schema.piece })
+    .from(schema.assignment)
+    .innerJoin(schema.piece, eq(schema.piece.id, schema.assignment.pieceId))
+    .where(eq(schema.assignment.studentId, studentId));
+  const extra = assigned.map((r) => r.p).filter((p, i, all) => isVisible(p.copyrightStatus) && p.musicXmlFileKey && !fromLessons.some((f) => f.id === p.id) && all.findIndex((q) => q.id === p.id) === i);
+  if (!extra.length) return fromLessons;
+  const progress = await db
+    .select()
+    .from(schema.pieceProgress)
+    .where(and(eq(schema.pieceProgress.studentId, studentId), inArray(schema.pieceProgress.pieceId, extra.map((p) => p.id))));
+  return [...fromLessons, ...extra.map((p) => toView(p, progress.find((r) => r.pieceId === p.id), null))];
 }
 
 /** One piece by slug, if this student may open it. */

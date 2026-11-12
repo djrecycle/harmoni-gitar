@@ -3,6 +3,7 @@ import { signOut } from "@/app/actions/auth";
 import { Brand } from "@/components/brand";
 import { BottomNav, SidebarNav } from "@/components/nav-links";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { NotificationBell } from "@/components/notifications/bell";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/misc";
 import { dashboardPathFor, type CurrentUser } from "@/lib/session";
@@ -16,7 +17,10 @@ export async function AppShell({ user, children }: { user: CurrentUser; children
     <div className="min-h-dvh lg:grid lg:grid-cols-[16.5rem_1fr]">
       {/* Desktop sidebar */}
       <aside className="no-print sticky top-0 hidden h-dvh flex-col gap-6 border-r bg-card p-4 lg:flex">
-        <Brand href={home} className="px-2 pt-2" />
+        <div className="flex items-center justify-between gap-2 px-2 pt-2">
+          <Brand href={home} />
+          <NotificationBell user={user} />
+        </div>
         <div className="flex-1 overflow-y-auto">
           <SidebarNav role={user.role} />
         </div>
@@ -50,6 +54,7 @@ export async function AppShell({ user, children }: { user: CurrentUser; children
           <Brand href={home} />
           <div className="flex min-w-0 items-center gap-1">
             <span className="min-w-0 truncate text-sm font-semibold">{user.name.split(" ")[0]}</span>
+            <NotificationBell user={user} className="shrink-0" />
             <LocaleSwitcher className="shrink-0" />
             <ThemeToggle className="shrink-0" />
           </div>

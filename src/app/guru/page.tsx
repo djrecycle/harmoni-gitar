@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarDays, CircleAlert, ClipboardCheck, MailPlus, Users } from "lucide-react";
+import { CalendarDays, CircleAlert, ClipboardCheck, MailPlus, Mic, Timer, Users } from "lucide-react";
 import { PasswordChangedNotice } from "@/components/password-changed-notice";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState, PageHeader, StatCard } from "@/components/ui/misc";
+import { reviewQueue } from "@/lib/assignments";
 import { getUnitMap } from "@/lib/curriculum";
 import { shortTime } from "@/lib/dates";
 import { daysSince, getPracticeStatsMany } from "@/lib/practice";
@@ -12,7 +13,7 @@ import { ensureMeetings, teacherMeetings } from "@/lib/schedule";
 import { requireTeacher } from "@/lib/session";
 import { getSettings } from "@/lib/settings";
 import { listStudents } from "@/lib/students";
-import { today } from "@/lib/utils";
+import { formatDateTime, shortLabel, today, plainText } from "@/lib/utils";
 import { getT } from "@/i18n/server";
 import { AttendanceButtons } from "./attendance-buttons";
 
@@ -25,7 +26,7 @@ export default async function TeacherDashboard({ searchParams }: { searchParams:
   const [user, { studioName }, t, { sandi }] = await Promise.all([requireTeacher(), getSettings(), getT(), searchParams]);
   const now = today();
   await ensureMeetings(user.id);
-  const [students, todays] = await Promise.all([listStudents(user.id), teacherMeetings(user.id, now, now)]);
+  const [students, todays, toReview] = await Promise.all([listStudents(user.id), teacherMeetings(user.id, now, now), reviewQueue(user.id)]);
   const active = students.filter((s) => s.status === "active");
   const stats = await getPracticeStatsMany(active.map((s) => s.id));
 
@@ -66,13 +67,40 @@ export default async function TeacherDashboard({ searchParams }: { searchParams:
         </EmptyState>
       ) : (
         <div className="grid gap-6">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <StatCard label={t("Active students")} value={active.length} icon={<Users />} />
             <StatCard label={t("Meetings today")} value={todays.length} icon={<CalendarDays />} />
-            <StatCard label={t("Practice this week (all students)")} value={t("{0} min", weekTotal)} icon={<ClipboardCheck />} />
+            <StatCard label={t("Recordings to review")} value={toReview.length} icon={<Mic />} />
+            <StatCard label={t("Practice this week (all students)")} value={t("{0} min", weekTotal)} icon={<Timer />} />
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
+            {toReview.length > 0 && (
+              <Card className="border-accent/50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ClipboardCheck className="size-4.5 text-accent" /> {t("Recordings waiting for review")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-2">
+                  <ul className="grid gap-1.5">
+                    {toReview.slice(0, 5).map((q) => (
+                      <li key={q.id}>
+                        <Link href={`/guru/penilaian/${q.id}`} className="flex items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2 text-sm hover:bg-primary-soft">
+                          <span className="min-w-0 truncate font-semibold">
+                            {q.studentName} · {q.pieceTitle ?? shortLabel(plainText(q.instructions ?? ""), 40)}
+                          </span>
+                          <span className="shrink-0 text-xs text-muted-foreground">{formatDateTime(q.createdAt)}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link href="/guru/penilaian" className="text-sm font-semibold text-primary hover:underline">
+                    {t("All reviews")}
+                  </Link>
+                </CardContent>
+              </Card>
+            )}
             <Card>
               <CardHeader>
                 <CardTitle>{t("Today's meetings")}</CardTitle>

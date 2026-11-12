@@ -37,7 +37,7 @@ export default async function PiecesPage() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-bold">{p.title}</p>
                     <p className="truncate text-xs text-muted-foreground">
-                      {p.lesson?.unitOrder == null ? t("Extra material") : t("Unit {0}", p.lesson.unitOrder)} · {p.lesson?.title}
+                      {!p.lesson ? t("From an assignment") : p.lesson.unitOrder == null ? `${t("Extra material")} · ${p.lesson.title}` : `${t("Unit {0}", p.lesson.unitOrder)} · ${p.lesson.title}`}
                     </p>
                     <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                       {[1, 2, 3].map((n) => (

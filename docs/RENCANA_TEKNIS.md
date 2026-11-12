@@ -234,9 +234,25 @@ Setiap tahap selesai = bisa dipakai siswa sungguhan.
 
 **Tahap 3: Tugas, rekaman, penilaian**
 - Guru memberi tugas per siswa, siswa merekam & mengirim, guru menilai dengan rubrik 5 aspek, notifikasi dalam aplikasi.
+- **Status (11 Nov 2026): kode selesai.** Alur siswa (lihat tugas → rekam → dengarkan → kirim → lihat nilai) diuji di browser; halaman guru (beri tugas, antrean penilaian, form rubrik, komentar suara) belum dicoba di browser.
+- Catatan Tahap 3:
+  - Tugas: satu form untuk satu atau beberapa siswa sekaligus (satu baris `assignment` per siswa). Isi: partitur dan/atau pelajaran (opsional), target tahap + bpm, instruksi (Markdown), tenggat. Partitur yang diberikan lewat tugas langsung terbuka untuk siswa itu (menu Karya dan pilihan karya di timer), walau pelajarannya belum terbuka.
+  - Status: `assigned` → `submitted` (siswa mengirim rekaman) → `reviewed` (guru menilai, siswa boleh merekam ulang) → `done` (guru menandai selesai; bisa dibuka lagi). Siswa bisa menghapus rekaman yang belum dinilai.
+  - Rekaman: `MediaRecorder` di browser (tanpa noise suppression/auto gain agar suara gitar tidak rusak), maks. 5 menit, diunggah ke `/api/upload/recording` (maks. 20 MB; jenis file ditentukan dari MIME, bukan nama file) lalu dicatat oleh server action. File di `recording/<studentId>/…`, hanya bisa dibuka siswa itu dan gurunya.
+  - Rubrik dari modul (hlm. 34): Postur & posisi, Ketepatan nada, Ritme & tempo, Teknik petikan, Ekspresi; 1 = perlu banyak latihan, 2 = cukup, 3 = baik, 4 = sangat baik (`src/lib/rubric.ts`). Guru bisa menambah komentar tertulis dan komentar suara (maks. 2 menit, disimpan di folder rekaman siswa). Menyimpan penilaian bisa sekaligus menandai tugas selesai dan mencatat target tahap karya sebagai tercapai + diperiksa.
+  - Notifikasi dalam aplikasi: ikon lonceng (jumlah belum dibaca) di header/sidebar, halaman `/guru/notifikasi` dan `/siswa/notifikasi`. Jenis: tugas baru, rekaman baru untuk dinilai, rekaman sudah dinilai, tugas ditandai selesai. Membuka halaman yang dituju otomatis menandai notifikasinya dibaca. Notifikasi perubahan jadwal belum dibuat.
+  - Halaman baru: `/siswa/tugas`, `/siswa/tugas/[id]`, `/guru/tugas`, `/guru/tugas/[id]`, `/guru/penilaian`, `/guru/penilaian/[id]`. Dashboard guru menampilkan rekaman yang menunggu dinilai; beranda siswa menampilkan tugas yang berjalan; profil siswa punya bagian Tugas.
+
+**Latihan dengan partitur, cek nada, dan tuner (dikerjakan lebih awal atas permintaan, 11 Nov 2026)**
+- Halaman Latihan: saat siswa memilih karya, partiturnya tampil di bawah timer. Tempo partitur, kartu Tempo, dan tangga tempo (+4 bpm, 3× tanpa salah) memakai **satu angka yang sama**; mengubah di satu tempat ikut berubah di tempat lain. Memutar partitur ≥ 10 detik di satu tempo mencatat tempo itu sebagai tempo tertinggi (sama seperti metronom). Tanpa karya, metronom biasa tetap dipakai.
+- Mode latihan di pemutar: **Suara gitar** (mati = main bersama kursor + metronom) dan **Cek nadaku**: mikrofon HP/laptop mendengarkan selama partitur diputar; tiap not diberi tanda di partitur (hijau benar, merah salah, abu-abu tidak terdengar), dengan "Seharusnya / Terdengar" langsung dan skor "x dari y nada benar". Untuk duet siswa memilih bagiannya. Mengaktifkan cek nada mematikan suara gitar (supaya speaker tidak ikut terdengar mikrofon) dan menyalakan metronom.
+  - Deteksi nada: algoritma YIN (`src/lib/pitch.ts`), akurat ±1 sen; satu nada sekaligus (pada akor, salah satu nadanya dihitung benar; beda satu oktaf juga dihitung benar). Pembacaan dicocokkan ke not lewat posisi pemutar alphaTab (`tickCache`, jadi tanda ulang/D.C. ikut benar) dengan kompensasi keterlambatan mikrofon ±110 ms (`src/components/score/use-pitch-check.ts`).
+  - Diuji di browser dengan nada sintetis (mikrofon asli belum diuji); perlu dicoba dengan gitar sungguhan, terutama ketepatan waktu dan nada yang masih berdengung dari not sebelumnya.
+- **Tuner** (`/siswa/tuner`, `/guru/tuner`): 13 tuning (standar, Drop D, lute/vihuela, double drop D, DADGAD, open D/G/E/A/C, drop C, turun ½ dan 1 nada) + kromatik; senar dikenali otomatis atau dipilih manual; jarum −50…+50 sen, "Pas!" di ±4 sen dan tanda ✓ per senar; nada acuan A4 415–466 Hz; tombol bunyi nada contoh per senar (sintesis Karplus–Strong, akurat < 0,2 sen). Pilihan tuning dan A4 disimpan di perangkat.
+- Mikrofon hanya jalan di HTTPS atau localhost: untuk HP di jaringan lokal perlu HTTPS.
 
 **Tahap 4: Pelengkap**
-- Tuner, pengingat latihan (Web Push). (Editor materi sudah dibuat lebih awal, lihat "Materi buatan guru".)
+- Pengingat latihan (Web Push). (Editor materi dan tuner sudah dibuat lebih awal, lihat "Materi buatan guru" dan "Latihan dengan partitur".)
 - Pembayaran: **tinggal dinyalakan** dan diuji ketika diputuskan dipakai.
 
 ## 9. Konten dan hak cipta

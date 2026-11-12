@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { refresh } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db";
@@ -8,33 +8,10 @@ import { fail, succeed, type ActionResult } from "@/lib/action-result";
 import { isTeacherOfStudent } from "@/lib/access";
 import { getAvailablePieces } from "@/lib/pieces";
 import { requireStudent, requireTeacher } from "@/lib/session";
-import { today } from "@/lib/utils";
+import { saveStage } from "@/lib/piece-progress";
 import { getT } from "@/i18n/server";
 
-type Stage = "1" | "2" | "3";
 const stageNum = z.number().int().min(0).max(3);
-
-/**
- * Stage dates after reaching (or un-reaching) a stage. Reaching stage n also fills in any lower stage without a
- * date; un-reaching stage n removes n and everything above it.
- */
-function nextDates(dates: Partial<Record<Stage, string>>, stage: number) {
-  const out: Partial<Record<Stage, string>> = {};
-  for (const k of ["1", "2", "3"] as Stage[]) if (Number(k) <= stage) out[k] = dates[k] ?? today();
-  return out;
-}
-
-async function saveStage(studentId: string, pieceId: string, stage: number, verified?: boolean) {
-  const P = schema.pieceProgress;
-  const [row] = await db.select().from(P).where(and(eq(P.studentId, studentId), eq(P.pieceId, pieceId))).limit(1);
-  const stageDates = nextDates(row?.stageDates ?? {}, stage);
-  // A new stage needs the teacher's check again, unless the teacher is the one setting it.
-  const teacherVerified = verified ?? (row && row.stage === stage ? row.teacherVerified : false);
-  await db
-    .insert(P)
-    .values({ studentId, pieceId, stage, stageDates, teacherVerified })
-    .onConflictDoUpdate({ target: [P.studentId, P.pieceId], set: { stage, stageDates, teacherVerified } });
-}
 
 /** Student ticks (or unticks) "Tahap n reached" for a piece they may open. */
 export async function setPieceStage(pieceId: string, stage: number, reached: boolean): Promise<ActionResult> {

@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { CircleCheck, Flag, Pause, Play, RotateCcw, SkipForward } from "lucide-react";
+import { CircleCheck, Flag, Minus, Pause, Play, Plus, RotateCcw, SkipForward } from "lucide-react";
 import { toast } from "sonner";
 import { savePracticeSession } from "@/app/actions/practice";
 import { Metronome } from "@/components/metronome";
+import { ScorePlayer } from "@/components/score/score-player";
+import { TempoLadder } from "@/components/tempo-ladder";
 import { Button } from "@/components/ui/button";
 import { Select, Textarea } from "@/components/ui/input";
 import { Progress } from "@/components/ui/misc";
@@ -54,7 +56,16 @@ const fresh = (n: number, pieceId = GENERAL_BPM_KEY): State => ({
   pieceId,
 });
 
-export type PracticePiece = { id: string; title: string; targetBpm: number; stage: number };
+export type PracticePiece = {
+  id: string;
+  title: string;
+  targetBpm: number;
+  stage: number;
+  /** Notation, so the score can be shown and played along with at the practice tempo. */
+  fileUrl: string;
+  defaultBpm: number;
+  stageBpm: Record<"1" | "2" | "3", number>;
+};
 
 const mmss = (ms: number) => {
   const s = Math.max(0, Math.round(ms / 1000));
@@ -88,6 +99,18 @@ export function RoutineTimer({
   const [savedMinutes, setSavedMinutes] = useState<number | null>(null);
   const chimes = useRef<(() => void)[]>([]);
   const wakeLock = useRef<{ release: () => Promise<void> } | null>(null);
+  // The tempo of the picked piece: one number for the score player and the tempo ladder.
+  const [pieceBpm, setPieceBpm] = useState<number | null>(null);
+  const [scorePlaying, setScorePlaying] = useState(false);
+  const pickedPiece = pieces.find((p) => p.id === state?.pieceId);
+  useEffect(() => setPieceBpm(pickedPiece?.targetBpm ?? null), [pickedPiece?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Like the metronome: a tempo counts as played after 10 seconds of playing the score at it.
+  useEffect(() => {
+    if (!scorePlaying || !pickedPiece || !pieceBpm) return;
+    const pid = pickedPiece.id;
+    const id = setTimeout(() => setState((s) => (s ? { ...s, maxBpm: { ...s.maxBpm, [pid]: Math.max(s.maxBpm[pid] ?? 0, pieceBpm) } } : s)), 10_000);
+    return () => clearTimeout(id);
+  }, [scorePlaying, pieceBpm, pickedPiece?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Restore a session from this device (only if it is from the last 24 hours and the segments still match).
   useEffect(() => {
@@ -285,113 +308,155 @@ export function RoutineTimer({
     );
   }
 
+  const bpmMax = selected ? selected.defaultBpm * 2 : 220;
+  const setBpm = (n: number) => setPieceBpm(Math.max(20, Math.min(bpmMax, Math.round(n))));
+
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_22rem] lg:items-start">
-      <div className="grid gap-4">
-        <div className="rounded-2xl border bg-card p-5 text-center shadow-sm">
-          <p className="text-xs font-bold tracking-wider text-primary uppercase">
-            {t("Segment {0} of {1}", state.index + 1, segments.length)}
-          </p>
-          <h2 className="mt-1 text-2xl font-extrabold">{t(SEGMENT_LABEL[seg.key])}</h2>
-          <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">{t(SEGMENT_HINT[seg.key])}</p>
-          <p className={cn("my-5 text-7xl font-extrabold tabular-nums", running ? "text-foreground" : "text-muted-foreground")} aria-live="off">
-            {mmss(remaining)}
-          </p>
-          <Progress value={(current(state.index) / seg.ms) * 100} label={t("Segment progress")} />
-          <div className="mt-5 flex flex-wrap justify-center gap-2">
-            {running ? (
-              <Button size="lg" variant="secondary" onClick={pause}>
-                <Pause /> {t("Pause")}
-              </Button>
-            ) : (
-              <Button size="lg" onClick={start}>
-                <Play /> {state.startedAt ? t("Continue") : t("Start practising")}
-              </Button>
-            )}
-            {state.startedAt && (
-              <>
-                <Button size="lg" variant="outline" onClick={skip}>
-                  <SkipForward /> {state.index >= segments.length - 1 ? t("Finish") : t("Next segment")}
+    <div className="grid gap-4">
+      <div className="grid gap-4 lg:grid-cols-[1fr_22rem] lg:items-start">
+        <div className="grid gap-4">
+          <div className="rounded-2xl border bg-card p-5 text-center shadow-sm">
+            <p className="text-xs font-bold tracking-wider text-primary uppercase">
+              {t("Segment {0} of {1}", state.index + 1, segments.length)}
+            </p>
+            <h2 className="mt-1 text-2xl font-extrabold">{t(SEGMENT_LABEL[seg.key])}</h2>
+            <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">{t(SEGMENT_HINT[seg.key])}</p>
+            <p className={cn("my-5 text-7xl font-extrabold tabular-nums", running ? "text-foreground" : "text-muted-foreground")} aria-live="off">
+              {mmss(remaining)}
+            </p>
+            <Progress value={(current(state.index) / seg.ms) * 100} label={t("Segment progress")} />
+            <div className="mt-5 flex flex-wrap justify-center gap-2">
+              {running ? (
+                <Button size="lg" variant="secondary" onClick={pause}>
+                  <Pause /> {t("Pause")}
                 </Button>
-                <Button size="lg" variant="outline" onClick={finish}>
-                  <Flag /> {t("Done for today")}
+              ) : (
+                <Button size="lg" onClick={start}>
+                  <Play /> {state.startedAt ? t("Continue") : t("Start practising")}
                 </Button>
-              </>
+              )}
+              {state.startedAt && (
+                <>
+                  <Button size="lg" variant="outline" onClick={skip}>
+                    <SkipForward /> {state.index >= segments.length - 1 ? t("Finish") : t("Next segment")}
+                  </Button>
+                  <Button size="lg" variant="outline" onClick={finish}>
+                    <Flag /> {t("Done for today")}
+                  </Button>
+                </>
+              )}
+            </div>
+            {learning && (
+              <p className="mt-4 text-sm">
+                {t("Now learning:")}{" "}
+                <Link href={learning.href} className="font-semibold text-primary hover:underline">
+                  {learning.title}
+                </Link>
+              </p>
             )}
           </div>
-          {learning && (
-            <p className="mt-4 text-sm">
-              {t("Now learning:")}{" "}
-              <Link href={learning.href} className="font-semibold text-primary hover:underline">
-                {learning.title}
-              </Link>
-            </p>
-          )}
+
+          <ol className="grid gap-2 rounded-xl border bg-card p-4 shadow-xs">
+            {segments.map((s, i) => {
+              const done = i < state.index;
+              return (
+                <li key={s.key} className={cn("grid grid-cols-[1.5rem_1fr_auto] items-center gap-3 rounded-lg p-2", i === state.index && "bg-primary-soft")}>
+                  <span className={cn("grid size-6 place-items-center rounded-full text-xs font-bold", done ? "bg-success text-white" : "bg-muted")}>
+                    {done ? <CircleCheck className="size-4" /> : i + 1}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold">{t(SEGMENT_LABEL[s.key])}</p>
+                    <Progress value={(current(i) / s.ms) * 100} className="mt-1 h-1.5" label={t(SEGMENT_LABEL[s.key])} />
+                  </div>
+                  <span className="text-xs text-muted-foreground tabular-nums">
+                    {mmss(current(i))} / {Math.round(s.ms / 60_000)}′
+                  </span>
+                </li>
+              );
+            })}
+            <li className="flex items-center justify-between border-t px-2 pt-3 text-sm">
+              <span className="font-semibold">{t("Total")}</span>
+              <span className="tabular-nums">
+                {mmss(totalMs)} / {Math.round(plannedMs / 60_000)}′
+              </span>
+            </li>
+            {state.startedAt && (
+              <li className="flex justify-end">
+                <Button variant="ghost" size="sm" onClick={reset} className="text-muted-foreground">
+                  <RotateCcw /> {t("Start over")}
+                </Button>
+              </li>
+            )}
+          </ol>
         </div>
 
-        <ol className="grid gap-2 rounded-xl border bg-card p-4 shadow-xs">
-          {segments.map((s, i) => {
-            const done = i < state.index;
-            return (
-              <li key={s.key} className={cn("grid grid-cols-[1.5rem_1fr_auto] items-center gap-3 rounded-lg p-2", i === state.index && "bg-primary-soft")}>
-                <span className={cn("grid size-6 place-items-center rounded-full text-xs font-bold", done ? "bg-success text-white" : "bg-muted")}>
-                  {done ? <CircleCheck className="size-4" /> : i + 1}
+        <div className="grid gap-3">
+          {pieces.length > 0 && (
+            <label className="grid gap-1.5 rounded-xl border bg-card p-3 text-sm font-semibold shadow-xs">
+              {t("Piece you are practising")}
+              <Select value={selected?.id ?? GENERAL_BPM_KEY} onChange={(e) => setState({ ...state, pieceId: e.target.value })}>
+                <option value={GENERAL_BPM_KEY}>{t("No piece (metronome only)")}</option>
+                {pieces.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {shortLabel(p.title)}
+                  </option>
+                ))}
+              </Select>
+              {selected && (
+                <span className="text-xs font-normal text-muted-foreground">
+                  {selected.stage >= 3 ? t("All 3 stages reached. Keep it at {0} bpm.", selected.targetBpm) : t("Next target: stage {0} at {1} bpm.", selected.stage + 1, selected.targetBpm)}
                 </span>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold">{t(SEGMENT_LABEL[s.key])}</p>
-                  <Progress value={(current(i) / s.ms) * 100} className="mt-1 h-1.5" label={t(SEGMENT_LABEL[s.key])} />
-                </div>
-                <span className="text-xs text-muted-foreground tabular-nums">
-                  {mmss(current(i))} / {Math.round(s.ms / 60_000)}′
-                </span>
-              </li>
-            );
-          })}
-          <li className="flex items-center justify-between border-t px-2 pt-3 text-sm">
-            <span className="font-semibold">{t("Total")}</span>
-            <span className="tabular-nums">
-              {mmss(totalMs)} / {Math.round(plannedMs / 60_000)}′
-            </span>
-          </li>
-          {state.startedAt && (
-            <li className="flex justify-end">
-              <Button variant="ghost" size="sm" onClick={reset} className="text-muted-foreground">
-                <RotateCcw /> {t("Start over")}
-              </Button>
-            </li>
+              )}
+            </label>
           )}
-        </ol>
+          {selected && pieceBpm ? (
+            <div className="grid gap-3 rounded-xl border bg-card p-4 shadow-xs">
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold">{t("Tempo")}</h3>
+                <span className="text-xs text-muted-foreground">{t("Same tempo as the score below")}</span>
+              </div>
+              <div className="flex items-center justify-center gap-3">
+                <Button variant="outline" size="icon" aria-label={t("Slower")} onClick={() => setBpm(pieceBpm - 1)}>
+                  <Minus />
+                </Button>
+                <div className="min-w-24 text-center">
+                  <p className="text-5xl leading-none font-extrabold tabular-nums">{pieceBpm}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">bpm</p>
+                </div>
+                <Button variant="outline" size="icon" aria-label={t("Faster")} onClick={() => setBpm(pieceBpm + 1)}>
+                  <Plus />
+                </Button>
+              </div>
+              <TempoLadder bpm={pieceBpm} onBpm={setBpm} max={bpmMax} best={state.maxBpm[selected.id]} />
+            </div>
+          ) : (
+            // key: a new piece starts the metronome at that piece's target tempo
+            <Metronome
+              key={selected?.id ?? GENERAL_BPM_KEY}
+              compact
+              initialBpm={selected?.targetBpm ?? 60}
+              onMaxBpm={(b) =>
+                setState((s) => (s ? { ...s, maxBpm: { ...s.maxBpm, [s.pieceId]: Math.max(s.maxBpm[s.pieceId] ?? 0, b) } } : s))
+              }
+            />
+          )}
+        </div>
       </div>
-
-      <div className="grid gap-3">
-        {pieces.length > 0 && (
-          <label className="grid gap-1.5 rounded-xl border bg-card p-3 text-sm font-semibold shadow-xs">
-            {t("Piece you are practising")}
-            <Select value={selected?.id ?? GENERAL_BPM_KEY} onChange={(e) => setState({ ...state, pieceId: e.target.value })}>
-              <option value={GENERAL_BPM_KEY}>{t("No piece (metronome only)")}</option>
-              {pieces.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {shortLabel(p.title)}
-                </option>
-              ))}
-            </Select>
-            {selected && (
-              <span className="text-xs font-normal text-muted-foreground">
-                {selected.stage >= 3 ? t("All 3 stages reached. Keep it at {0} bpm.", selected.targetBpm) : t("Next target: stage {0} at {1} bpm.", selected.stage + 1, selected.targetBpm)}
-              </span>
-            )}
-          </label>
-        )}
-        {/* key: a new piece starts the metronome at that piece's target tempo */}
-        <Metronome
-          key={selected?.id ?? GENERAL_BPM_KEY}
-          compact
-          initialBpm={selected?.targetBpm ?? 60}
-          onMaxBpm={(b) =>
-            setState((s) => (s ? { ...s, maxBpm: { ...s.maxBpm, [s.pieceId]: Math.max(s.maxBpm[s.pieceId] ?? 0, b) } } : s))
-          }
-        />
-      </div>
+      {selected && pieceBpm && (
+        <section className="grid gap-2">
+          <h2 className="text-lg font-extrabold">{selected.title}</h2>
+          <ScorePlayer
+            key={selected.id}
+            practice
+            fileUrl={selected.fileUrl}
+            defaultBpm={selected.defaultBpm}
+            stageBpm={selected.stageBpm}
+            bpm={pieceBpm}
+            onBpmChange={setBpm}
+            onPlayingChange={setScorePlaying}
+          />
+        </section>
+      )}
     </div>
   );
 }

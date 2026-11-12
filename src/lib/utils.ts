@@ -56,3 +56,9 @@ export function fromWibInput(s: string | null | undefined): Date | null {
 export function shortLabel(text: string, max = 45): string {
   return text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
 }
+
+/** 75 -> "1:15" (minutes:seconds). */
+export const formatSeconds = (d: number) => `${Math.floor(d / 60)}:${String(Math.round(d) % 60).padStart(2, "0")}`;
+
+/** Markdown as one plain line, for short previews ("**Aura Lee** bar 1" -> "Aura Lee bar 1"). */
+export const plainText = (md: string) => md.replace(/[*_`#>~]+/g, "").replace(/\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/\s+/g, " ").trim();

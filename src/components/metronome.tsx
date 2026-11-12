@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Minus, Play, Plus, Square, TrendingUp, X } from "lucide-react";
-import { toast } from "sonner";
+import { Minus, Play, Plus, Square } from "lucide-react";
+import { TempoLadder } from "@/components/tempo-ladder";
 import { Button } from "@/components/ui/button";
 import { startMetronome, unlockAudio } from "@/lib/audio";
 import { cn } from "@/lib/utils";
@@ -10,9 +10,6 @@ import { useT } from "@/i18n/client";
 
 const MIN = 30;
 const MAX = 220;
-/** Module rule: "Start at 60 bpm. After 3 times in a row without mistakes, go up 4 bpm." */
-const LADDER_STEP = 4;
-const LADDER_CLEAN_RUNS = 3;
 
 function tempoName(bpm: number) {
   return bpm < 60 ? "Largo" : bpm < 76 ? "Adagio" : bpm < 108 ? "Andante" : bpm < 120 ? "Moderato" : bpm < 168 ? "Allegro" : "Presto";
@@ -28,7 +25,6 @@ export function Metronome({ initialBpm = 60, onMaxBpm, compact }: { initialBpm?:
   const [beats, setBeats] = useState(4);
   const [running, setRunning] = useState(false);
   const [active, setActive] = useState(-1);
-  const [clean, setClean] = useState(0);
   const [best, setBest] = useState(0);
   const bpmRef = useRef(bpm);
   const bestRef = useRef(0);
@@ -74,15 +70,6 @@ export function Metronome({ initialBpm = 60, onMaxBpm, compact }: { initialBpm?:
       await unlockAudio();
       setRunning(true);
     }
-  }
-
-  function cleanRun() {
-    const n = clean + 1;
-    if (n >= LADDER_CLEAN_RUNS) {
-      set(bpm + LADDER_STEP);
-      setClean(0);
-      toast.success(t("3 times without mistakes: tempo up to {0} bpm!", Math.min(MAX, bpm + LADDER_STEP)));
-    } else setClean(n);
   }
 
   return (
@@ -134,31 +121,7 @@ export function Metronome({ initialBpm = 60, onMaxBpm, compact }: { initialBpm?:
         </Button>
       </div>
 
-      <div className="rounded-lg bg-muted p-3">
-        <div className="flex items-center justify-between gap-2">
-          <p className="flex items-center gap-1.5 text-sm font-bold">
-            <TrendingUp className="size-4 text-primary" /> {t("Tempo ladder")}
-          </p>
-          <Button variant="secondary" size="sm" onClick={() => set(bpm + LADDER_STEP)}>
-            +{LADDER_STEP} bpm
-          </Button>
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">{t("Play the passage. 3 times in a row without mistakes = up 4 bpm.")}</p>
-        <div className="mt-2 flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={cleanRun}>
-            <Check className="text-success" /> {t("No mistakes")}
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setClean(0)}>
-            <X className="text-danger" /> {t("Mistake")}
-          </Button>
-          <div className="ml-auto flex gap-1" aria-label={t("{0} of 3 clean runs", clean)}>
-            {Array.from({ length: LADDER_CLEAN_RUNS }, (_, i) => (
-              <span key={i} className={cn("size-3 rounded-full", i < clean ? "bg-success" : "bg-card ring-1 ring-input")} />
-            ))}
-          </div>
-        </div>
-        {best > 0 && <p className="mt-2 text-xs text-muted-foreground">{t("Highest tempo this time: {0} bpm", best)}</p>}
-      </div>
+      <TempoLadder bpm={bpm} onBpm={set} max={MAX} best={best} />
     </div>
   );
 }

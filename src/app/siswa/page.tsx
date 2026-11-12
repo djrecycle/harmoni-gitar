@@ -1,22 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { and, desc, eq, isNotNull } from "drizzle-orm";
-import { BookOpen, CalendarDays, Flame, MessageSquareQuote, PartyPopper, Timer } from "lucide-react";
+import { BookOpen, CalendarDays, ClipboardList, Flame, MessageSquareQuote, PartyPopper, Timer } from "lucide-react";
 import { PasswordChangedNotice } from "@/components/password-changed-notice";
 import { WeekTracker } from "@/components/practice-summary";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, PageHeader, Progress } from "@/components/ui/misc";
+import { Alert, Badge, PageHeader, Progress } from "@/components/ui/misc";
 import { db, schema } from "@/db";
+import { listStudentAssignments } from "@/lib/assignments";
 import { getUnitMap, nextLesson } from "@/lib/curriculum";
-import { dayName, formatDay, isoDayOfWeek, shortTime } from "@/lib/dates";
+import { dayName, formatDay, formatDayShort, isoDayOfWeek, shortTime } from "@/lib/dates";
 import { getPracticeStats } from "@/lib/practice";
 import { ROUTINE_KEYS } from "@/lib/routine";
 import { studentMeetings } from "@/lib/schedule";
 import { requireStudent } from "@/lib/session";
 import { getSettings } from "@/lib/settings";
 import { routineFor } from "@/lib/students";
-import { today } from "@/lib/utils";
+import { ASSIGNMENT_STATUS_LABEL, ASSIGNMENT_STATUS_TONE } from "@/lib/rubric";
+import { shortLabel, today, plainText } from "@/lib/utils";
 import { getT } from "@/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -28,7 +30,7 @@ export default async function StudentHome({ searchParams }: { searchParams: Prom
   const [user, { studioName }, t, sp] = await Promise.all([requireStudent(), getSettings(), getT(), searchParams]);
   const now = today();
   const M = schema.meeting;
-  const [map, stats, { routine }, [nextMeeting], [lastNote]] = await Promise.all([
+  const [map, stats, { routine }, [nextMeeting], [lastNote], assignments] = await Promise.all([
     getUnitMap(user.id),
     getPracticeStats(user.id),
     routineFor(user.id),
@@ -39,7 +41,9 @@ export default async function StudentHome({ searchParams }: { searchParams: Prom
       .where(and(eq(M.studentId, user.id), isNotNull(M.teacherNote)))
       .orderBy(desc(M.date))
       .limit(1),
+    listStudentAssignments(user.id),
   ]);
+  const openAssignments = assignments.filter((a) => a.status !== "done");
   const goal = ROUTINE_KEYS.reduce((n, k) => n + routine[k], 0);
   const practisedToday = stats.week.find((d) => d.date === now)?.minutes ?? 0;
   const next = nextLesson(map);
@@ -74,6 +78,36 @@ export default async function StudentHome({ searchParams }: { searchParams: Prom
                 <Timer /> {t("Start practising")} ({goal}′)
               </Link>
             </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ClipboardList className="size-4.5 text-primary" /> {t("Assignments")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-2">
+            {openAssignments.length ? (
+              <ul className="grid gap-1.5">
+                {openAssignments.slice(0, 3).map((a) => (
+                  <li key={a.id}>
+                    <Link href={`/siswa/tugas/${a.id}`} className="flex items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2 text-sm hover:bg-primary-soft">
+                      <span className="min-w-0 truncate font-semibold">{a.pieceTitle ?? a.lesson?.title ?? shortLabel(plainText(a.instructions ?? ""), 50)}</span>
+                      <span className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+                        {a.dueDate && formatDayShort(a.dueDate)}
+                        <Badge tone={ASSIGNMENT_STATUS_TONE[a.status]}>{t(ASSIGNMENT_STATUS_LABEL[a.status])}</Badge>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted-foreground">{t("No open assignments.")}</p>
+            )}
+            <Link href="/siswa/tugas" className="text-sm font-semibold text-primary hover:underline">
+              {t("All assignments")}
+            </Link>
           </CardContent>
         </Card>
 

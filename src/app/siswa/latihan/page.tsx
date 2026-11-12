@@ -17,7 +17,15 @@ export default async function PracticePage() {
   const student = await requireStudent();
   const t = await getT();
   const [{ routine }, map] = await Promise.all([routineFor(student.id), getUnitMap(student.id)]);
-  const pieces = (await getAvailablePieces(student.id, map)).map((p) => ({ id: p.id, title: p.title, stage: p.progress.stage, targetBpm: nextTargetBpm(p, p.progress.stage) }));
+  const pieces = (await getAvailablePieces(student.id, map)).map((p) => ({
+    id: p.id,
+    title: p.title,
+    stage: p.progress.stage,
+    targetBpm: nextTargetBpm(p, p.progress.stage),
+    fileUrl: p.fileUrl,
+    defaultBpm: p.defaultBpm,
+    stageBpm: p.stageBpm,
+  }));
   const total = ROUTINE_KEYS.reduce((n, k) => n + routine[k], 0);
   const n = nextLesson(map);
   return (

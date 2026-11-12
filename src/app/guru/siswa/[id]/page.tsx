@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarPlus, CircleCheck, Gift, Lock, LockOpen, Plus } from "lucide-react";
+import { ArrowLeft, CalendarPlus, CircleCheck, ClipboardList, Gift, Lock, LockOpen, Mic, Plus } from "lucide-react";
 import { approveUnit, setUnitOpen } from "@/app/actions/learning";
 import { setActive } from "@/app/actions/students";
 import { ActionButton } from "@/components/action-button";
@@ -9,16 +9,18 @@ import { JournalList, PracticeStatCards, WeekTracker } from "@/components/practi
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, Badge, PageHeader, Progress } from "@/components/ui/misc";
+import { listTeacherAssignments } from "@/lib/assignments";
 import { getExtraLessons, getUnitCheck, getUnitMap } from "@/lib/curriculum";
 import { dayName, formatDay, shortTime } from "@/lib/dates";
 import { LOCATION_LABEL, MEETING_STATUS_LABEL, MEETING_STATUS_TONE } from "@/lib/labels";
 import { getAvailablePieces } from "@/lib/pieces";
 import { getJournal, getPracticeStats } from "@/lib/practice";
 import { ROUTINE_KEYS } from "@/lib/routine";
+import { ASSIGNMENT_STATUS_LABEL, ASSIGNMENT_STATUS_TONE } from "@/lib/rubric";
 import { listSlots, studentMeetings } from "@/lib/schedule";
 import { requireTeacher } from "@/lib/session";
 import { getStudentOfTeacher, routineFor } from "@/lib/students";
-import { formatDate, today } from "@/lib/utils";
+import { formatDate, today, plainText } from "@/lib/utils";
 import { getT } from "@/i18n/server";
 import { ProfileForm, ResetPasswordButton, TeacherCheckForm } from "./forms";
 import { PieceRows } from "./piece-rows";
@@ -39,9 +41,10 @@ export default async function StudentProfilePage({ params }: Props) {
   const t = await getT();
   const now = today();
 
-  const [map, extras, stats, journal, { routine, custom }, slots, upcoming, past] = await Promise.all([
+  const [map, extras, assignments, stats, journal, { routine, custom }, slots, upcoming, past] = await Promise.all([
     getUnitMap(id),
     getExtraLessons(id),
+    listTeacherAssignments(teacher.id, id),
     getPracticeStats(id),
     getJournal(id, 10),
     routineFor(id),
@@ -204,6 +207,40 @@ export default async function StudentProfilePage({ params }: Props) {
             </Card>
           ))}
         </div>
+      </section>
+
+      <section id="tugas" className="mt-10 grid scroll-mt-20 gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="flex items-center gap-2 text-xl font-extrabold">
+            <ClipboardList className="size-5 text-primary" /> {t("Assignments")}
+          </h2>
+          <Button asChild size="sm" variant="outline">
+            <Link href={`/guru/tugas?siswa=${id}`}>
+              <Plus /> {t("Give an assignment")}
+            </Link>
+          </Button>
+        </div>
+        {assignments.length ? (
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {assignments.slice(0, 8).map((a) => (
+              <li key={a.id}>
+                <Link href={`/guru/tugas/${a.id}`} className="flex items-center justify-between gap-2 rounded-xl border bg-card p-3 shadow-xs hover:border-primary/50">
+                  <span className="min-w-0 truncate font-semibold">{a.pieceTitle ?? a.lesson?.title ?? plainText(a.instructions ?? "")}</span>
+                  <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+                    {a.recordings > 0 && (
+                      <span className="inline-flex items-center gap-0.5">
+                        <Mic className="size-3.5" /> {a.recordings}
+                      </span>
+                    )}
+                    <Badge tone={ASSIGNMENT_STATUS_TONE[a.status]}>{t(ASSIGNMENT_STATUS_LABEL[a.status])}</Badge>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-muted-foreground">{t("No assignments for this student yet.")}</p>
+        )}
       </section>
 
       <section id="tambahan" className="mt-10 grid scroll-mt-20 gap-4">

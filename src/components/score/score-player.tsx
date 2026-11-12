@@ -1,11 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { LoaderCircle, Minus, Pause, Play, Plus, Repeat, Square, Volume2, VolumeX } from "lucide-react";
+import { Guitar, LoaderCircle, Mic, MicOff, Minus, Pause, Play, Plus, Repeat, RotateCcw, Square, Volume2, VolumeX } from "lucide-react";
+import { toast } from "sonner";
+import { micErrorMessage } from "@/components/audio/use-mic-pitch";
+import { Alert } from "@/components/ui/misc";
+import { noteName } from "@/lib/pitch";
 import type * as AlphaTabTypes from "@coderline/alphatab";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ALPHATAB_BASE as BASE, PLAY_EVENT, loadAlphaTab, prepareScore as prepare, type Api } from "./alphatab";
+import { usePitchCheck } from "./use-pitch-check";
 import { useT } from "@/i18n/client";
 
 type Score = AlphaTabTypes.model.Score;
@@ -19,9 +24,15 @@ export type ScorePlayerProps = {
   stageBpm?: Record<"1" | "2" | "3", number>;
   /** Start at this tempo (e.g. the next stage to reach). */
   initialBpm?: number;
+  /** Controlled tempo (e.g. shared with the practice timer's tempo ladder). */
+  bpm?: number;
+  onBpmChange?: (bpm: number) => void;
+  onPlayingChange?: (playing: boolean) => void;
+  /** Practice mode: "guitar sound" on/off (play along with cursor + metronome) and "check my notes" with the microphone. */
+  practice?: boolean;
 };
 
-export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm }: ScorePlayerProps) {
+export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm, bpm: controlledBpm, onBpmChange, onPlayingChange, practice }: ScorePlayerProps) {
   const t = useT();
   const id = useRef(Math.random().toString(36).slice(2));
   const host = useRef<HTMLDivElement>(null);
@@ -32,7 +43,15 @@ export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm }: Score
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [playerReady, setPlayerReady] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [bpm, setBpm] = useState(initialBpm ?? defaultBpm);
+  const [ownBpm, setOwnBpm] = useState(initialBpm ?? defaultBpm);
+  const bpm = controlledBpm ?? ownBpm;
+  const [apiState, setApiState] = useState<Api | null>(null);
+  const [renderCount, setRenderCount] = useState(0);
+  const [guitarSound, setGuitarSound] = useState(true);
+  const [checking, setChecking] = useState(false);
+  const [part, setPart] = useState(0);
+  const onPlayingRef = useRef(onPlayingChange);
+  onPlayingRef.current = onPlayingChange;
   const [showTab, setShowTab] = useState(true);
   const [metronome, setMetronome] = useState(false);
   const [countIn, setCountIn] = useState(true);
@@ -69,13 +88,17 @@ export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm }: Score
           },
         } as AlphaTabTypes.json.SettingsJson);
         api.current = a;
+        setApiState(a);
         a.playerReady.on(() => setPlayerReady(true));
         a.playerStateChanged.on((e) => {
           const on = e.state === at.synth.PlayerState.Playing;
           setPlaying(on);
+          onPlayingRef.current?.(on);
           if (on) window.dispatchEvent(new CustomEvent(PLAY_EVENT, { detail: id.current }));
         });
         a.renderFinished.on(() => setStatus("ready"));
+        // The note check's marks are placed from the bounds, which are complete only after this.
+        a.postRenderFinished.on(() => setRenderCount((n) => n + 1));
         a.error.on(() => setStatus("error"));
 
         const res = await fetch(fileUrl);
@@ -90,7 +113,7 @@ export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm }: Score
         setLoop({ on: false, from: 1, to: Math.min(2, score.masterBars.length) });
         a.metronomeVolume = 0;
         a.countInVolume = 1;
-        a.playbackSpeed = (initialBpm ?? defaultBpm) / defaultBpm;
+        a.playbackSpeed = (controlledBpm ?? initialBpm ?? defaultBpm) / defaultBpm;
         a.renderScore(score, score.tracks.map((tr) => tr.index));
       } catch (e) {
         console.error("[score]", e);
@@ -101,6 +124,7 @@ export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm }: Score
       cancelled = true;
       api.current?.destroy();
       api.current = null;
+      setApiState(null);
     };
     // Tempo props only matter for the first load; changing them later must not reload the score.
   }, [visible, fileUrl]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -114,10 +138,17 @@ export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm }: Score
     return () => window.removeEventListener(PLAY_EVENT, other);
   }, []);
 
+  // The playback speed follows the tempo, also when it is changed from outside (the tempo ladder).
+  useEffect(() => {
+    if (api.current) api.current.playbackSpeed = bpm / defaultBpm;
+  }, [bpm, defaultBpm, apiState]);
+
+  const check = usePitchCheck({ api: apiState, track: part, bpm, playing });
+
   const setTempo = (n: number) => {
     const v = Math.max(20, Math.min(Math.round(defaultBpm * 2), Math.round(n)));
-    setBpm(v);
-    if (api.current) api.current.playbackSpeed = v / defaultBpm;
+    if (onBpmChange) onBpmChange(v);
+    else setOwnBpm(v);
   };
 
   const toggleTab = () => {
@@ -168,6 +199,58 @@ export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm }: Score
     }
   };
 
+  /** Guitar sound on/off for every part: off = play along with the cursor (and metronome). */
+  const setGuitar = (on: boolean) => {
+    const a = api.current;
+    const score = scoreRef.current;
+    setGuitarSound(on);
+    if (!a || !score) return;
+    a.changeTrackMute(score.tracks, !on);
+    setTracks((ts) => ts.map((x) => ({ ...x, muted: !on })));
+    if (!on && !metronome) toggleMetronome();
+  };
+
+  const toggleCheck = async () => {
+    if (checking) {
+      check.mic.stop();
+      setChecking(false);
+      return;
+    }
+    if (guitarSound) {
+      setGuitar(false);
+      toast.info(t("Guitar sound off, so the microphone only hears your guitar. With earphones you can switch it back on."));
+    }
+    check.reset();
+    setChecking(true);
+    await check.mic.start();
+  };
+
+  // A new run from the start clears the marks of the last one.
+  useEffect(() => {
+    if (playing && checking && (api.current?.tickPosition ?? 0) < 10) check.reset();
+  }, [playing]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Where to draw the check marks (recomputed after every render of the score).
+  const marks = (() => {
+    void renderCount;
+    const lookup = apiState?.renderer.boundsLookup;
+    if (!checking || !lookup) return [];
+    const out: { key: string; x: number; y: number; verdict: string; label: string }[] = [];
+    for (const r of check.results.values()) {
+      const b = lookup.findBeat(r.beat);
+      if (!b) continue;
+      const vb = b.visualBounds;
+      out.push({
+        key: `${r.beat.id}`,
+        x: vb.x + vb.w / 2,
+        y: Math.min(vb.y, b.barBounds.visualBounds.y) - 4,
+        verdict: r.verdict,
+        label: r.verdict === "ok" ? t("Right") : r.verdict === "missed" ? t("Not heard") : t("Heard {0}, should be {1}", r.heard !== null ? noteName(r.heard) : "-", r.expected.map((m) => noteName(m)).join("/")),
+      });
+    }
+    return out;
+  })();
+
   const stages = stageBpm ? (["1", "2", "3"] as const) : [];
 
   return (
@@ -178,7 +261,16 @@ export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm }: Score
             {!playerReady && status !== "error" ? <LoaderCircle className="animate-spin" /> : playing ? <Pause /> : <Play />}
             {playing ? t("Pause") : t("Play")}
           </Button>
-          <Button size="sm" variant="outline" onClick={() => api.current?.stop()} disabled={!playerReady} aria-label={t("Stop")}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              api.current?.stop();
+              check.reset();
+            }}
+            disabled={!playerReady}
+            aria-label={t("Stop")}
+          >
             <Square />
           </Button>
           <div className="flex items-center gap-1">
@@ -238,7 +330,27 @@ export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm }: Score
               />
             </span>
           )}
+          {practice && (
+            <>
+              <Toggle on={guitarSound} onClick={() => setGuitar(!guitarSound)} title={t("Off: play along with the cursor and metronome")}>
+                <Guitar className="size-3.5" /> {t("Guitar sound")}
+              </Toggle>
+              <Toggle on={checking} onClick={toggleCheck} title={t("The microphone listens and checks your notes while the score plays")}>
+                {checking ? <Mic className="size-3.5" /> : <MicOff className="size-3.5" />} {t("Check my notes")}
+              </Toggle>
+              {checking && tracks.length > 1 && (
+                <select value={part} onChange={(e) => setPart(Number(e.target.value))} aria-label={t("Your part")} className="h-7 rounded-full border border-input bg-card px-2 text-xs font-semibold">
+                  {tracks.map((tr) => (
+                    <option key={tr.index} value={tr.index}>
+                      {t("I play: {0}", tr.name)}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </>
+          )}
           {tracks.length > 1 &&
+            !(practice && !guitarSound) &&
             tracks.map((tr) => (
               <Toggle key={tr.index} on={!tr.muted} onClick={() => toggleMute(tr.index)} title={tr.muted ? t("Unmute {0}", tr.name) : t("Mute {0}", tr.name)}>
                 {tr.muted ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />} {tr.name}
@@ -247,9 +359,66 @@ export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm }: Score
         </div>
       </div>
 
+      {checking && (
+        <div className="grid gap-2 rounded-xl border bg-card p-3 text-sm">
+          {check.mic.status === "error" ? (
+            <Alert kind="error" title={t("The microphone could not start")}>
+              {micErrorMessage(check.mic.error, t)}
+            </Alert>
+          ) : (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+              <span>
+                {t("Should be")}: <b>{playing && check.live?.expected?.length ? check.live.expected.map((m) => noteName(m)).join(" / ") : "–"}</b>
+              </span>
+              <span>
+                {t("Heard")}:{" "}
+                <b
+                  className={cn(
+                    check.live?.heard != null && check.live.expected?.length
+                      ? check.live.expected.some((e) => Math.abs(e - check.live!.heard!) < 0.5 || Math.abs(Math.abs(e - check.live!.heard!) - 12) < 0.5)
+                        ? "text-success"
+                        : "text-danger"
+                      : "",
+                  )}
+                >
+                  {check.live?.heard != null ? noteName(check.live.heard) : "–"}
+                </b>
+              </span>
+              {check.stats.total > 0 && (
+                <span className="ml-auto font-semibold">
+                  {t("{0} of {1} notes right ({2}%)", check.stats.ok, check.stats.total, Math.round((check.stats.ok / check.stats.total) * 100))}
+                </span>
+              )}
+              {check.stats.total > 0 && (
+                <button type="button" onClick={check.reset} className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground">
+                  <RotateCcw className="size-3.5" /> {t("Clear marks")}
+                </button>
+              )}
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">
+            {t("Press Play and play along. Each note gets a mark: green = right, red = wrong note, grey = not heard. One note at a time works best; in a chord any of its notes counts.")}
+          </p>
+        </div>
+      )}
+
       {/* The notation is drawn black on white, also in the dark theme (like paper). */}
       <div className="relative min-h-40 overflow-hidden rounded-xl border bg-white p-1 text-black">
-        <div ref={host} />
+        <div className="relative">
+          <div ref={host} />
+          {marks.map((m) => (
+            <span
+              key={m.key}
+              title={m.label}
+              aria-label={m.label}
+              className={cn(
+                "pointer-events-auto absolute z-10 size-3 -translate-x-1/2 -translate-y-full rounded-full ring-2 ring-white",
+                m.verdict === "ok" ? "bg-emerald-500" : m.verdict === "wrong" ? "bg-red-500" : "bg-neutral-400",
+              )}
+              style={{ left: m.x, top: m.y }}
+            />
+          ))}
+        </div>
         {status !== "ready" && (
           <div className="absolute inset-0 grid place-items-center text-sm text-neutral-500">
             {status === "error" ? t("The notation could not be loaded. Try reloading the page.") : <LoaderCircle className="size-6 animate-spin" />}
