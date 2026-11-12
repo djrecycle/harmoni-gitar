@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ILLUSTRATION_NAMES } from "./illustrations";
 
 /** Shape of `lesson_block.data` per block type (documented in content/README.md). Safe for client code. */
 
@@ -11,6 +12,7 @@ export const blockDataSchemas = {
   target: markdown.extend({ title: z.string().optional() }),
   image: z.object({ fileKey: z.string().min(1), alt: z.string().default(""), caption: z.string().optional() }),
   video: z.object({ url: z.url().optional(), fileKey: z.string().optional(), caption: z.string().optional() }).refine((v) => v.url || v.fileKey, "video: url or fileKey"),
+  illustration: z.object({ name: z.enum(ILLUSTRATION_NAMES), caption: z.string().optional() }),
   score: z.object({ piece: z.string().min(1), note: z.string().optional() }),
   checklist: z.object({ title: z.string().optional(), items: z.array(z.string().min(1)).min(1).max(30) }),
   quiz: z

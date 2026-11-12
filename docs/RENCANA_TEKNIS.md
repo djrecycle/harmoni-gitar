@@ -206,6 +206,7 @@ Setiap tahap selesai = bisa dipakai siswa sungguhan.
 - **Status (11 Nov 2026): kode selesai dan diuji di browser** (lihat catatan di bawah). Tinggal uji coba dengan siswa sungguhan.
 - Catatan Tahap 1:
   - Isi pelajaran Unit 1 berupa teks, tabel, checklist, kuis, tips, dan target; notasi latihan memakai blok `score` yang untuk sementara merujuk ke halaman modul cetak (alphaTab di Tahap 2). Gambar dari PDF modul **tidak** dimasukkan karena asal-usulnya (buku sumber) belum jelas; foto/gambar buatan sendiri bisa ditambahkan sebagai blok `image`.
+  - (12 Nov 2026) Ditambah blok `illustration`: 14 gambar SVG interaktif buatan sendiri (anatomi gitar, 6 dawai berbunyi, posisi duduk, nama jari + permainan, posisi blok, apoyando/tirando beranimasi, not di paranada, nilai not & tanda birama dengan metronom, peta nada dawai ①–⑥, D.C. al Fine) agar anak lebih paham; sudah dipasang di pelajaran Unit 1 dan bisa dipilih guru di `/guru/materi`. Seed memindahkan centang checklist siswa bila posisi checklist bergeser.
   - Kuis hanya umpan balik langsung, jawabannya tidak disimpan. "Tandai selesai" tidak mewajibkan checklist penuh; Cek Unit wajib terisi semua.
   - Guru bisa membuka/mengunci unit secara manual di profil siswa, selain lewat persetujuan Cek Unit.
   - Halaman `/guru/kurikulum` belum dibuat (tidak wajib untuk Tahap 1); sekarang menjadi `/guru/materi`.

@@ -18,6 +18,7 @@ import {
   Music,
   Plus,
   Save,
+  Sparkles,
   Target,
   Trash2,
   Video,
@@ -28,6 +29,7 @@ import { ActionButton } from "@/components/action-button";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select, Textarea } from "@/components/ui/input";
 import type { BlockType } from "@/lib/blocks";
+import { ILLUSTRATIONS, type IllustrationName } from "@/lib/illustrations";
 import { LESSON_KIND_LABEL } from "@/lib/labels";
 import { cn } from "@/lib/utils";
 import { useT } from "@/i18n/client";
@@ -61,6 +63,7 @@ const BLOCKS: { type: BlockType; label: string; Icon: React.ComponentType<{ clas
   { type: "quiz", label: "Quiz", Icon: ListChecks },
   { type: "video", label: "Video", Icon: Video },
   { type: "image", label: "Image", Icon: ImagePlus },
+  { type: "illustration", label: "Animation", Icon: Sparkles },
 ];
 
 const EMPTY: Record<BlockType, Record<string, unknown>> = {
@@ -73,6 +76,7 @@ const EMPTY: Record<BlockType, Record<string, unknown>> = {
   quiz: { question: "", options: ["", ""], answer: 0 },
   video: { url: "" },
   image: { fileKey: "", alt: "" },
+  illustration: { name: "" },
 };
 
 let seq = 0;
@@ -441,6 +445,24 @@ function BlockFields({ block, pieces, onChange }: { block: Block; pieces: Lesson
       );
     case "image":
       return <ImageFields d={d} onChange={onChange} />;
+    case "illustration":
+      return (
+        <>
+          <Field label={t("Animation")} hint={t("An interactive drawing built into the app: students can tap it, and some of them play sound.")}>
+            <Select value={str(d.name)} onChange={(e) => onChange({ name: e.target.value })}>
+              <option value="">{t("Choose an animation…")}</option>
+              {(Object.entries(ILLUSTRATIONS) as [IllustrationName, string][]).map(([name, label]) => (
+                <option key={name} value={name}>
+                  {t(label)}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label={t("Caption (optional)")}>
+            <Input value={str(d.caption)} onChange={(e) => onChange({ caption: e.target.value })} />
+          </Field>
+        </>
+      );
     default:
       return null;
   }

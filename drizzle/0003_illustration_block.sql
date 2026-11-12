@@ -1,0 +1,1 @@
+ALTER TYPE "public"."lesson_block_type" ADD VALUE 'illustration';

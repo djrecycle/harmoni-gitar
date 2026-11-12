@@ -46,6 +46,7 @@ Satu file per unit.
 | `text` | `{ "markdown": "…" }` |
 | `image` | `{ "fileKey": "media/…", "alt": "…", "caption": "…" }` |
 | `video` | `{ "url": "…" }` atau `{ "fileKey": "media/…" }` (video direkam sendiri oleh guru) |
+| `illustration` | `{ "name": "…", "caption": "…" }`: gambar/animasi interaktif bawaan aplikasi (`caption` opsional) |
 | `score` | `{ "piece": "<slug karya di content/pieces>" }` |
 | `checklist` | `{ "title": "…", "items": ["…", "…"] }` |
 | `quiz` | `{ "question": "…", "options": ["…"], "answer": 0 }` |
@@ -56,6 +57,10 @@ Satu file per unit.
 Detail tambahan:
 - `checklist`: 1–30 butir; centang siswa disimpan per butir (urutan butir jangan diubah setelah dipakai siswa).
 - `quiz`: 2–6 pilihan, `answer` = indeks jawaban benar (mulai 0), `explain` opsional (tampil setelah benar). Jawaban tidak disimpan.
+- `illustration`: gambar SVG buatan sendiri (bukan scan modul) yang bisa diketuk siswa, sebagian berbunyi. `name` salah satu dari
+  `guitar-parts`, `strings`, `sitting`, `fingers`, `block-position`, `apoyando`, `tirando`, `staff-notes`, `note-values`,
+  `time-signature`, `fretboard-1-2`, `fretboard-3-4`, `fretboard-5-6`, `dc-al-fine` (daftar: `src/lib/illustrations.ts`,
+  gambarnya: `src/components/illustrations/`). Guru juga bisa memasangnya di `/guru/materi` (tombol "Animasi").
 - `score`: `{ "piece": "<slug>", "note": "…" }`. Tampil sebagai pemutar notasi + tiga kotak tahap. Bila karyanya belum ada
   (atau statusnya `unknown`), yang tampil hanya `note` dengan keterangan "segera hadir".
 
@@ -65,6 +70,8 @@ Bentuk `data` divalidasi saat `npm run db:seed` (`src/lib/blocks.ts`): blok yang
 
 - Unit dicocokkan lewat `slug`, pelajaran lewat (unit, `slug`), blok dan butir Cek Unit lewat **urutannya**.
   Yang cocok diperbarui di tempat, jadi kemajuan siswa tetap tersambung.
+- Centang checklist siswa ikut pindah bila checklist bergeser posisi (mis. karena blok gambar disisipkan di atasnya):
+  dicocokkan lewat isi checklist yang sama persis.
 - Blok/butir Cek Unit yang berlebih (file jadi lebih pendek) dihapus beserta centang siswa pada blok itu.
 - Pelajaran yang dihapus dari file **tidak** dihapus dari database (kemajuan siswa ikut terhapus); skrip hanya
   memberi peringatan. Sembunyikan dengan `"published": false`.

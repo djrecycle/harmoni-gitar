@@ -27,3 +27,17 @@ export function Markdown({ children, className }: { children: string; className?
     </div>
   );
 }
+
+const INLINE = ["p", "strong", "em", "del", "code"];
+
+/**
+ * One line of Markdown inside other text (a quiz question, an answer button): only **bold**, *italic*, ~~strike~~ and
+ * `code` are kept; anything block-level (lists, headings) is unwrapped to its text.
+ */
+export function InlineMarkdown({ children }: { children: string }) {
+  return (
+    <ReactMarkdown remarkPlugins={[remarkGfm]} allowedElements={INLINE} unwrapDisallowed components={{ p: ({ children }) => <>{children}</> }}>
+      {children}
+    </ReactMarkdown>
+  );
+}

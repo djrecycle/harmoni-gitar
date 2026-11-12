@@ -1,5 +1,6 @@
 import { Crosshair, Lightbulb, Music, Target } from "lucide-react";
 import { Markdown } from "@/components/markdown";
+import { Illustration } from "@/components/illustrations";
 import { Checklist } from "@/components/lesson/checklist";
 import { Quiz } from "@/components/lesson/quiz";
 import { PieceCard } from "@/components/score/piece-card";
@@ -73,6 +74,10 @@ export async function LessonBlocks({
                 </figure>
               )
             );
+          }
+          case "illustration": {
+            const d = parseBlock("illustration", b.data);
+            return d && <Illustration key={b.id} name={d.name} caption={d.caption} />;
           }
           case "video": {
             const d = parseBlock("video", b.data);

@@ -16,13 +16,26 @@
         {
           "type": "text",
           "data": {
-            "markdown": "Di unit ini kamu mengenal gitar, duduk dengan benar, mengenal nama jari, lalu mulai memetik dan membaca not di semua dawai.\n\n## A · Anatomi gitar\nGitar klasik terdiri dari tiga bagian besar:\n\n- **Kepala** (*head*): tempat **penyetem** (*tuning pegs*) untuk mengencangkan dan mengendurkan dawai.\n- **Leher** (*neck*): di depannya ada **papan jari** (*fingerboard*) yang dibagi oleh **pembatas fret** (kawat logam). Di ujung atas leher ada **nut**, tempat dawai bertumpu.\n- **Badan** (*body*): ada **lubang suara** (*sound hole*) dan **jembatan** (*bridge*), tempat dawai diikat.\n\nLihat gambar anatomi gitar di modul cetak hal. 3."
+            "markdown": "Di unit ini kamu mengenal gitar, duduk dengan benar, mengenal nama jari, lalu mulai memetik dan membaca not di semua dawai.\n\n## A · Anatomi gitar\nGitar klasik terdiri dari tiga bagian besar:\n\n- **Kepala** (*head*): tempat **penyetem** (*tuning pegs*) untuk mengencangkan dan mengendurkan dawai.\n- **Leher** (*neck*): di depannya ada **papan jari** (*fingerboard*) yang dibagi oleh **pembatas fret** (kawat logam). Di ujung atas leher ada **nut**, tempat dawai bertumpu.\n- **Badan** (*body*): ada **lubang suara** (*sound hole*) dan **jembatan** (*bridge*), tempat dawai diikat.\n\nKetuk bagian-bagian gitar pada gambar di bawah ini."
+          }
+        },
+        {
+          "type": "illustration",
+          "data": {
+            "name": "guitar-parts"
           }
         },
         {
           "type": "text",
           "data": {
             "markdown": "## B · Dawai gitar\nGitar punya 6 dawai, **dihitung dari bawah** (dawai yang paling dekat ke lantai saat kamu memegang gitar):\n\n| Dawai | Nada | Keterangan |\n|---|---|---|\n| ① | E (tinggi) | paling tipis |\n| ② | B | |\n| ③ | G | |\n| ④ | D | |\n| ⑤ | A | |\n| ⑥ | E (rendah) | paling tebal |"
+          }
+        },
+        {
+          "type": "illustration",
+          "data": {
+            "name": "strings",
+            "caption": "Ketuk setiap dawai untuk mendengar bunyinya, mulai dari dawai ⑥ (paling tebal)."
           }
         },
         {
@@ -90,7 +103,13 @@
         {
           "type": "text",
           "data": {
-            "markdown": "## D · Posisi duduk\n- Duduk **tegap dan rileks** di ujung kursi tanpa lengan.\n- **Kaki kiri** di atas penyangga kaki (*footstool*).\n- Gitar diletakkan di **paha kiri**.\n- **Siku tangan kiri** santai di samping badan gitar.\n\nLihat gambar posisi duduk di modul cetak hal. 4."
+            "markdown": "## D · Posisi duduk\n- Duduk **tegap dan rileks** di ujung kursi tanpa lengan.\n- **Kaki kiri** di atas penyangga kaki (*footstool*).\n- Gitar diletakkan di **paha kiri**.\n- **Siku tangan kiri** santai di samping badan gitar.\n\nPerhatikan gambar di bawah: ketuk nomornya satu per satu, lalu tiru posisinya."
+          }
+        },
+        {
+          "type": "illustration",
+          "data": {
+            "name": "sitting"
           }
         },
         {
@@ -109,6 +128,13 @@
           "type": "text",
           "data": {
             "markdown": "## E · Penjarian\n### 1. Tangan kanan (memetik)\n| Simbol | Nama | Jari |\n|---|---|---|\n| **p** | pulgar | ibu jari |\n| **i** | indice | jari telunjuk |\n| **m** | medio | jari tengah |\n| **a** | anular | jari manis |\n| **ch** | chico | kelingking |\n\n### 2. Tangan kiri (menekan)\n| Angka | Jari |\n|---|---|\n| **0** | dawai terbuka (tidak ditekan) |\n| **1** | jari telunjuk |\n| **2** | jari tengah |\n| **3** | jari manis |\n| **4** | kelingking |"
+          }
+        },
+        {
+          "type": "illustration",
+          "data": {
+            "name": "fingers",
+            "caption": "Mainkan permainan “Cari jarinya!” sampai kamu bisa tanpa melihat."
           }
         },
         {
@@ -177,6 +203,13 @@
           "type": "text",
           "data": {
             "markdown": "## F · Posisi blok\nPosisi blok adalah letak jari telunjuk, tengah, manis, dan kelingking saat menekan dawai bersamaan, masing-masing pada fret-nya. **Nama posisi ditentukan oleh letak jari telunjuk.**\n\nContoh: **posisi V** berarti jari 1 di fret 5, jari 2 di fret 6, jari 3 di fret 7, jari 4 di fret 8."
+          }
+        },
+        {
+          "type": "illustration",
+          "data": {
+            "name": "block-position",
+            "caption": "Coba keenam latihan di bawah gambar, lalu cari posisinya di gitarmu."
           }
         },
         {
@@ -252,6 +285,12 @@
           "type": "text",
           "data": {
             "markdown": "## G · Petikan apoyando\n**Apoyando** = petikan bersandar: setelah memetik, jari bersandar pada dawai di atasnya. Dipakai untuk memainkan **melodi**.\n\n1. **Persiapan**: ujung jari menyentuh dawai.\n2. **Petik**: dorong dawai ke arah badan gitar.\n3. **Selesai**: jari berhenti di dawai berikutnya (dawai di atasnya)."
+          }
+        },
+        {
+          "type": "illustration",
+          "data": {
+            "name": "apoyando"
           }
         },
         {
@@ -366,6 +405,13 @@
           }
         },
         {
+          "type": "illustration",
+          "data": {
+            "name": "tirando",
+            "caption": "Bandingkan dengan apoyando: tekan tombolnya di atas gambar."
+          }
+        },
+        {
           "type": "score",
           "data": {
             "piece": "tirando-latihan-1-5",
@@ -416,7 +462,26 @@
         {
           "type": "text",
           "data": {
-            "markdown": "## H · Membaca notasi balok\n### Kunci G & F\n- **Kunci G** untuk nada-nada tinggi. Musik gitar ditulis dengan kunci G.\n- **Kunci F** untuk nada-nada rendah.\n\n### Nama nada\nGaris paranada **dihitung dari bawah**. Ucapkan keras-keras **C D E F G A B C** sambil menunjuk not.\n\n### Nilai nada\n| Not | Nilai (dalam birama 4/4) |\n|---|---|\n| Not penuh | 4 ketukan |\n| Not 1/2 | 2 ketukan |\n| Not 1/4 | 1 ketukan |\n| Not 1/8 | ½ ketukan |\n\nSetiap not punya **tanda istirahat** (tanda diam) dengan nilai yang sama. Lihat gambarnya di modul cetak hal. 9."
+            "markdown": "## H · Membaca notasi balok\n### Kunci G & F\n- **Kunci G** untuk nada-nada tinggi. Musik gitar ditulis dengan kunci G.\n- **Kunci F** untuk nada-nada rendah.\n\n### Nama nada\nGaris paranada **dihitung dari bawah**. Ucapkan keras-keras **C D E F G A B C** sambil menunjuk not."
+          }
+        },
+        {
+          "type": "illustration",
+          "data": {
+            "name": "staff-notes"
+          }
+        },
+        {
+          "type": "text",
+          "data": {
+            "markdown": "### Nilai nada\n| Not | Nilai (dalam birama 4/4) |\n|---|---|\n| Not penuh | 4 ketukan |\n| Not 1/2 | 2 ketukan |\n| Not 1/4 | 1 ketukan |\n| Not 1/8 | ½ ketukan |\n\nSetiap not punya **tanda istirahat** (tanda diam) dengan nilai yang sama. Lihat gambarnya di modul cetak hal. 9."
+          }
+        },
+        {
+          "type": "illustration",
+          "data": {
+            "name": "note-values",
+            "caption": "Pilih satu baris, tekan Putar, lalu hitung keras-keras bersama ketukannya."
           }
         },
         {
@@ -491,6 +556,12 @@
           }
         },
         {
+          "type": "illustration",
+          "data": {
+            "name": "time-signature"
+          }
+        },
+        {
           "type": "focus",
           "data": {
             "markdown": "- Hitung keras “1 – 2 – 3 – 4”.\n- Kaki kiri mengetuk setiap ketukan.\n- Petik dawai ① terbuka bergantian i – m.",
@@ -548,6 +619,12 @@
           "type": "text",
           "data": {
             "markdown": "## I · Nada baru\n| Dawai | Fret 0 | Fret 1 | Fret 3 |\n|---|---|---|---|\n| ② | **B** | **C** | **D** |\n| ① | **E** | **F** | **G** |\n\n### Angka kecil di depan not\nAngka di samping not = **jari tangan kiri**. **0** berarti dawai dipetik terbuka."
+          }
+        },
+        {
+          "type": "illustration",
+          "data": {
+            "name": "fretboard-1-2"
           }
         },
         {
@@ -681,6 +758,12 @@
           }
         },
         {
+          "type": "illustration",
+          "data": {
+            "name": "fretboard-3-4"
+          }
+        },
+        {
           "type": "focus",
           "data": {
             "markdown": "Fret 2 ditekan jari **2**, fret 3 ditekan jari **3**.",
@@ -735,6 +818,12 @@
           }
         },
         {
+          "type": "illustration",
+          "data": {
+            "name": "dc-al-fine"
+          }
+        },
+        {
           "type": "score",
           "data": {
             "piece": "moon-night",
@@ -767,6 +856,12 @@
           "type": "text",
           "data": {
             "markdown": "## K · Nada baru\n| Dawai | Fret 0 | Fret 1 | Fret 2 | Fret 3 |\n|---|---|---|---|---|\n| ⑥ | **E** | **F** | | **G** |\n| ⑤ | **A** | | **B** | **C** |\n\n### Nada bas\nDawai ④ ⑤ ⑥ dipetik dengan **p** (ibu jari). Not bas ditulis **di bawah paranada** dengan **garis bantu**."
+          }
+        },
+        {
+          "type": "illustration",
+          "data": {
+            "name": "fretboard-5-6"
           }
         },
         {

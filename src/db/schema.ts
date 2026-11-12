@@ -50,6 +50,7 @@ export const lessonBlockTypeEnum = pgEnum("lesson_block_type", [
   "tip",
   "focus",
   "target",
+  "illustration",
 ]);
 export const copyrightStatusEnum = pgEnum("copyright_status", ["public_domain", "own_work", "licensed", "unknown"]);
 export const lessonProgressStatusEnum = pgEnum("lesson_progress_status", ["locked", "open", "done"]);

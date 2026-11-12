@@ -16,7 +16,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 async function main() {
-  const { and, asc, eq, gt, isNotNull, isNull, notInArray } = await import("drizzle-orm");
+  const { and, asc, eq, gt, inArray, isNotNull, isNull, notInArray } = await import("drizzle-orm");
   const { db, schema, closeDb } = await import("../src/db");
   const { pieceFileSchema, unitFileSchema } = await import("../src/lib/content");
   const { deleteFile, saveFile } = await import("../src/lib/storage");
@@ -55,6 +55,60 @@ async function main() {
       for (const b of l.blocks)
         if (b.type === "score" && !pieceSlugs.has(String(b.data.piece)))
           console.warn(`  ! ${file}, pelajaran "${l.slug}": blok score merujuk karya "${b.data.piece}" yang tidak ada di content/pieces`);
+
+  type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+  const stable = (v: unknown): string =>
+    Array.isArray(v)
+      ? `[${v.map(stable).join(",")}]`
+      : v && typeof v === "object"
+        ? `{${Object.keys(v)
+            .sort()
+            .map((k) => `${JSON.stringify(k)}:${stable((v as Record<string, unknown>)[k])}`)
+            .join(",")}}`
+        : JSON.stringify(v);
+
+  /**
+   * Blocks are matched by position, so inserting a block (e.g. a picture) in the middle of a lesson would leave the
+   * students' checklist ticks on whatever block now sits at the old position. Move them along: an old checklist goes
+   * to the new checklist with exactly the same data; failing that, it stays at its position if that is still a
+   * checklist (edited items keep their ticks, as before). Ticks of a checklist that is gone are dropped.
+   */
+  async function moveChecklistTicks(
+    tx: Tx,
+    before: { id: string; order: number; type: string; data: unknown }[],
+    blocks: { type: string; data: unknown }[],
+    idAt: Map<number, string>,
+  ) {
+    const oldLists = before.filter((b) => b.type === "checklist");
+    if (!oldLists.length) return;
+    const newLists = blocks.flatMap((b, j) => (b.type === "checklist" ? [{ order: j + 1, key: stable(b.data) }] : []));
+    const target = new Map<string, number>();
+    const taken = new Set<number>();
+    for (const o of oldLists) {
+      const n = newLists.find((x) => !taken.has(x.order) && x.key === stable(o.data));
+      if (n) {
+        target.set(o.id, n.order);
+        taken.add(n.order);
+      }
+    }
+    for (const o of oldLists)
+      if (!target.has(o.id) && !taken.has(o.order) && newLists.some((x) => x.order === o.order)) {
+        target.set(o.id, o.order);
+        taken.add(o.order);
+      }
+    const moving = oldLists.filter((o) => target.get(o.id) !== o.order);
+    if (!moving.length) return;
+    const ids = moving.map((o) => o.id);
+    const ticks = await tx.select().from(S.checklistState).where(inArray(S.checklistState.lessonBlockId, ids));
+    await tx.delete(S.checklistState).where(inArray(S.checklistState.lessonBlockId, ids));
+    const moved = ticks.flatMap((s) => {
+      const order = target.get(s.lessonBlockId);
+      const to = order && idAt.get(order);
+      return to ? [{ studentId: s.studentId, lessonBlockId: to, checkedItems: s.checkedItems, createdAt: s.createdAt, updatedAt: s.updatedAt }] : [];
+    });
+    if (moved.length) await tx.insert(S.checklistState).values(moved);
+    console.log(`  checklist dipindah: ${moving.map((o) => `${o.order}→${target.get(o.id) ?? "dihapus"}`).join(", ")} (${moved.length} data centang siswa)`);
+  }
 
   try {
     for (const { piece: p, xml } of pieces) {
@@ -115,12 +169,20 @@ async function main() {
             .onConflictDoUpdate({ target: [S.lesson.unitId, S.lesson.slug], set: lessonFields })
             .returning({ id: S.lesson.id });
 
+          const before = await tx
+            .select({ id: S.lessonBlock.id, order: S.lessonBlock.order, type: S.lessonBlock.type, data: S.lessonBlock.data })
+            .from(S.lessonBlock)
+            .where(eq(S.lessonBlock.lessonId, lr.id));
+          const idAt = new Map<number, string>();
           for (const [j, b] of l.blocks.entries()) {
-            await tx
+            const [row] = await tx
               .insert(S.lessonBlock)
               .values({ lessonId: lr.id, order: j + 1, type: b.type, data: b.data })
-              .onConflictDoUpdate({ target: [S.lessonBlock.lessonId, S.lessonBlock.order], set: { type: b.type, data: b.data } });
+              .onConflictDoUpdate({ target: [S.lessonBlock.lessonId, S.lessonBlock.order], set: { type: b.type, data: b.data } })
+              .returning({ id: S.lessonBlock.id });
+            idAt.set(j + 1, row.id);
           }
+          await moveChecklistTicks(tx, before, l.blocks, idAt);
           await tx.delete(S.lessonBlock).where(and(eq(S.lessonBlock.lessonId, lr.id), gt(S.lessonBlock.order, l.blocks.length)));
         }
 
