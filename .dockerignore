@@ -20,3 +20,4 @@ docs
 deploy.sh
 docker-compose.vps.yml
 .deploy.env*
+backup.sh
