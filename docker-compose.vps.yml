@@ -1,0 +1,13 @@
+# Tambahan khusus VPS: dipakai bersama docker-compose.yml oleh deploy.sh.
+#
+#   docker compose --env-file .env.docker -f docker-compose.yml -f docker-compose.vps.yml up -d --build
+#
+# HTTPS untuk harmoniclass.tech ditangani Caddy milik LMS Harmoni (container harmoni-caddy-1), yang
+# meneruskannya ke 172.17.0.1:3001. 172.17.0.1 adalah alamat VPS di jembatan docker0: bisa dijangkau dari
+# container mana pun di VPS, tapi tidak dari internet. Kedua project tidak berbagi network, jadi service
+# bernama `app`/`db` milik LMS dan milik Harmoni Gitar tidak bisa tertukar.
+
+services:
+  app:
+    ports:
+      - "${PROXY_BIND_IP:-172.17.0.1}:3001:3001"

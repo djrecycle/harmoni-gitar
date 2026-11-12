@@ -17,3 +17,6 @@ docker-compose.yml
 AGENTS.md
 CLAUDE.md
 docs
+deploy.sh
+docker-compose.vps.yml
+.deploy.env*

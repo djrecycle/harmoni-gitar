@@ -28,6 +28,11 @@ Aplikasi web untuk **siswa les gitar klasik Pak Rangga** agar bisa berlatih mand
   - **alphaTab** (`@coderline/alphatab`): menampilkan notasi balok + tab gitar dari MusicXML, memutar suara, kursor mengikuti not, ubah tempo.
   - **Deteksi nada untuk tuner**: Web Audio API + library kecil seperti `pitchy`.
 - **Deploy**: untuk sementara **localhost dengan Docker Compose**, seperti Harmoni (`db` PostgreSQL + `app`). Caddy, domain, dan VPS disiapkan nanti saat aplikasi siap dipakai siswa dari luar. Agar bisa berjalan bersamaan dengan LMS Harmoni di komputer yang sama, pakai port berbeda: app `3001` (Harmoni `3000`), PostgreSQL `5433` (Harmoni `5432`).
+- **Deploy ke VPS** (VPS yang sama dengan LMS Harmoni):
+  - Kode dikirim dengan `./deploy.sh` (rsync ke `/opt/harmoni-gitar`, lalu `up -d --build` dengan `docker-compose.vps.yml`); data server ada di `.deploy.env`.
+  - Domain **harmoniclass.tech** (LMS Harmoni di musicclass.tech). HTTPS dari Caddy milik LMS Harmoni (`harmoni-caddy-1`, satu-satunya pemegang port 80/443): Caddyfile LMS punya blok `harmoniclass.tech` → `reverse_proxy 172.17.0.1:3001`. App Harmoni Gitar membuka port 3001 di `172.17.0.1` (jembatan docker0: terjangkau dari container lain di VPS, tidak dari internet). Kedua project sengaja tidak berbagi network, karena sama-sama punya service bernama `app` dan `db`.
+  - HTTPS wajib: mikrofon (tuner, cek nada) hanya jalan di HTTPS.
+  - Persiapan pertama di VPS: `.env.docker` baru (kata sandi dan secret baru, `BETTER_AUTH_URL=https://harmoniclass.tech`), lalu setelah deploy pertama jalankan seed kurikulum (`--profile tools run --rm tools`) dan `setup:teacher`.
 
 ### Yang disalin dari LMS Harmoni lalu disesuaikan
 
@@ -281,7 +286,7 @@ Setiap tahap selesai = bisa dipakai siswa sungguhan.
 | Pertanyaan | Keputusan |
 |---|---|
 | Nama aplikasi | **Harmoni Gitar**: satu keluarga dengan LMS Harmoni. Nama tampilan tetap disimpan di `app_setting` (`studioName`) agar bisa diganti tanpa mengubah kode. Saran nama teknis: repo `harmoni-gitar`, nama Docker Compose `harmoni-gitar`, database `harmoni_gitar` (berbeda dari `harmoni` milik LMS Harmoni agar keduanya bisa berjalan bersamaan di localhost). |
-| Hosting | **Sementara localhost** dengan Docker Compose seperti LMS Harmoni. VPS + domain + Caddy menyusul. |
+| Hosting | Localhost dengan Docker Compose untuk pengembangan; produksi di VPS yang sama dengan LMS Harmoni, di belakang Caddy LMS Harmoni (lihat "Deploy ke VPS"). |
 | Siswa nonaktif | **Sama sekali tidak bisa masuk** (lihat 4.5). |
 | Timer rutinitas | **Default 15/10/10 menit** (pemanasan & teknik/etude/lagu), guru bisa mengubah default dan per siswa (lihat bagian 7). |
 | Akun orang tua | **Belum dibuat.** Fokus ke guru dan siswa. |
