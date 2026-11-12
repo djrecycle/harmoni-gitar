@@ -20,7 +20,7 @@ export async function updateSettings(_: ActionResult, fd: FormData): Promise<Act
   const teacher = await requireTeacher();
   const p = settingsSchema.safeParse({
     studioName: fd.get("studioName"),
-    routine: { warmup: fd.get("warmup"), technique: fd.get("technique"), etude: fd.get("etude"), piece: fd.get("piece") },
+    routine: { warmup: fd.get("warmup"), etude: fd.get("etude"), piece: fd.get("piece") },
     payments: fd.get("payments") === "on",
   });
   if (!p.success) return zodError(p.error, fd);

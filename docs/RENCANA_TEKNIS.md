@@ -114,7 +114,7 @@ Aturan pembuka bertahap: pelajaran berikutnya terbuka setelah yang sebelumnya `d
 ### 5.4 Latihan & jurnal
 | Tabel | Kolom penting |
 |---|---|
-| `practice_session` | `id`, `studentId`, `startedAt`, `endedAt`, `totalSeconds`, `segments` (jsonb: menit pemanasan/teknik/etude/lagu), `pieceIds`, `maxBpm` (jsonb per piece), `mood`/`difficulty` (1–5, opsional), `studentNote` |
+| `practice_session` | `id`, `studentId`, `startedAt`, `endedAt`, `totalSeconds`, `segments` (jsonb: menit pemanasan & teknik/etude/lagu), `pieceIds`, `maxBpm` (jsonb per piece), `mood`/`difficulty` (1–5, opsional), `studentNote` |
 
 Jurnal = daftar `practice_session`. Streak dan pelacak mingguan **dihitung dari tabel ini** (tidak disimpan terpisah).
 
@@ -151,7 +151,7 @@ Pertemuan dibuat otomatis dari `lesson_slot` untuk 8 minggu ke depan (dan seming
 ### 5.8 Lain-lain
 | Tabel | Kegunaan |
 |---|---|
-| `app_setting` | Feature flag, nama studio, nomor WA guru, pengaturan pengingat, **durasi default timer rutinitas** (`routine`: `{ warmup: 5, technique: 10, etude: 10, piece: 10 }`) |
+| `app_setting` | Feature flag, nama studio, nomor WA guru, pengaturan pengingat, **durasi default timer rutinitas** (`routine`: `{ warmup: 15, etude: 10, piece: 10 }`; `warmup` = pemanasan, postur & teknik) |
 | `notification` | Notifikasi dalam aplikasi (tugas baru, rekaman dinilai, jadwal berubah) |
 | `push_subscription` | Untuk pengingat latihan via Web Push (tahap 4) |
 
@@ -184,7 +184,7 @@ Prefiks route dalam bahasa Indonesia agar mudah dibaca. Semua halaman dipriorita
 
 - **Notasi (alphaTab)**: sumber MusicXML disimpan sebagai file (`piece.musicXmlFileKey`, `score/<slug>-<hash>.musicxml`, disalin oleh `npm run db:seed`). Tampilkan notasi balok + tab, tombol putar/jeda, pengatur tempo (persentase atau bpm), loop bagian (birama A–B), kursor. Muat alphaTab hanya di halaman yang butuh (dynamic import, `ssr: false`).
 - **Metronom**: Web Audio API langsung (`src/lib/audio.ts`, penjadwal *look-ahead*; tanpa unduhan sampel sehingga bisa offline), bukan `tone`. Ada **tangga tempo** ("+4 bpm"; tombol *Tanpa salah*/*Ada salah*, 3× tanpa salah → naik 4 bpm otomatis). Tempo tertinggi yang benar-benar dimainkan (≥ 10 detik) disimpan ke `practice_session.maxBpm`. Selama belum ada karya (Tahap 2) kuncinya `"general"`; mulai Tahap 2 kuncinya `pieceId` → memperbarui `piece_progress.bestBpm`.
-- **Timer rutinitas**: 4 segmen dengan durasi **default 5/10/10/10 menit** (pemanasan/teknik/etude/lagu). Guru bisa mengubah default untuk semua siswa di Pengaturan, dan mengubah khusus untuk satu siswa di profilnya (`student_profile.routineSegments`). Ada bunyi penanda pergantian segmen (dijadwalkan di jam audio, jadi tetap berbunyi saat tab di belakang) dan getar di HP; waktu dihitung dari jam perangkat dan disimpan di `localStorage`, jadi sesi tidak hilang saat halaman dimuat ulang. Saat selesai → isi suasana hati/kesulitan/catatan → simpan `practice_session` → muncul di jurnal. Siswa juga bisa mencatat latihan manual (sampai 7 hari ke belakang) dan menghapus catatan 7 hari terakhir.
+- **Timer rutinitas**: 3 segmen dengan durasi **default 15/10/10 menit**: *Pemanasan, postur & teknik* (5 + 10 menit di modul; latihan teknik dipakai sebagai pemanasan), *Etude*, *Lagu*. (Sebelumnya 4 segmen; migrasi `0004_merge_technique_segment` menggabungkan menit teknik ke pemanasan di pengaturan, timer siswa, dan riwayat latihan.) Di awal setiap segmen, karya yang dilatih **berganti sendiri** sesuai jenis pelajaran tempat karya itu diajarkan: pelajaran teknik/teori → segmen pemanasan & teknik, etude → Etude, lagu → Lagu; yang dipilih adalah karya pertama yang tahapnya belum lengkap (kalau semua lengkap, yang terbaru). Kalau belum ada karya untuk segmen itu, yang tampil metronom saja dengan keterangan. Siswa tetap bisa memilih karya lain selama segmen berjalan. Guru bisa mengubah default untuk semua siswa di Pengaturan, dan mengubah khusus untuk satu siswa di profilnya (`student_profile.routineSegments`). Ada bunyi penanda pergantian segmen (dijadwalkan di jam audio, jadi tetap berbunyi saat tab di belakang) dan getar di HP; waktu dihitung dari jam perangkat dan disimpan di `localStorage`, jadi sesi tidak hilang saat halaman dimuat ulang. Saat selesai → isi suasana hati/kesulitan/catatan → simpan `practice_session` → muncul di jurnal. Siswa juga bisa mencatat latihan manual (sampai 7 hari ke belakang) dan menghapus catatan 7 hari terakhir.
 - **Rekaman**: `MediaRecorder` (pola `recorder.tsx` / `free-recorder.tsx` Harmoni), batasi durasi (mis. 5 menit) dan ukuran file, unggah ke storage.
 - **Tuner**: mikrofon → deteksi frekuensi → nama nada terdekat + selisih cent, dengan tampilan khusus 6 dawai (E A D G B E).
 - **Offline ringan / PWA**: manifest + service worker untuk memasang di layar HP; cache aset statis, metronom, dan tuner agar tetap bisa dipakai saat sinyal lemah.
@@ -247,6 +247,8 @@ Setiap tahap selesai = bisa dipakai siswa sungguhan.
 **Latihan dengan partitur, cek nada, dan tuner (dikerjakan lebih awal atas permintaan, 11 Nov 2026)**
 - Halaman Latihan: saat siswa memilih karya, partiturnya tampil di bawah timer. Tempo partitur, kartu Tempo, dan tangga tempo (+4 bpm, 3× tanpa salah) memakai **satu angka yang sama**; mengubah di satu tempat ikut berubah di tempat lain. Memutar partitur ≥ 10 detik di satu tempo mencatat tempo itu sebagai tempo tertinggi (sama seperti metronom). Tanpa karya, metronom biasa tetap dipakai.
 - Mode latihan di pemutar: **Suara gitar** (mati = main bersama kursor + metronom) dan **Cek nadaku**: mikrofon HP/laptop mendengarkan selama partitur diputar; tiap not diberi tanda di partitur (hijau benar, merah salah, abu-abu tidak terdengar), dengan "Seharusnya / Terdengar" langsung dan skor "x dari y nada benar". Untuk duet siswa memilih bagiannya. Mengaktifkan cek nada mematikan suara gitar (supaya speaker tidak ikut terdengar mikrofon) dan menyalakan metronom.
+  - (12 Nov 2026) **Skor cek nada**: setiap kali partitur berhenti/dijeda dengan "Cek nadaku" aktif (minimal 8 not dinilai), skor 0–100 (= not benar ÷ semua not) disimpan ke tabel `pitch_check_run` (satu baris per percobaan; jeda lalu lanjut memperbarui baris yang sama, id dibuat di browser). Siswa melihat skor, bintang (≥90 = 3, ≥70 = 2, ≥50 = 1), dan skor terbaiknya; guru melihat 20 percobaan terakhir dan skor terbaik per karya di profil siswa (bagian "Skor cek nada"). Skor dihitung di perangkat siswa, jadi anggap sebagai gambaran latihan, bukan nilai resmi.
+  - Kursor pemutar diberi warna (`globals.css`, kelas `.at-cursor-beat`/`.at-cursor-bar`/`.at-highlight`): garis yang berjalan halus sesuai tempo, pita di birama, dan not yang sedang berbunyi berwarna biru. Halaman hanya digulir mengikuti partitur saat partitur diputar.
   - Deteksi nada: algoritma YIN (`src/lib/pitch.ts`), akurat ±1 sen; satu nada sekaligus (pada akor, salah satu nadanya dihitung benar; beda satu oktaf juga dihitung benar). Pembacaan dicocokkan ke not lewat posisi pemutar alphaTab (`tickCache`, jadi tanda ulang/D.C. ikut benar) dengan kompensasi keterlambatan mikrofon ±110 ms (`src/components/score/use-pitch-check.ts`).
   - Diuji di browser dengan nada sintetis (mikrofon asli belum diuji); perlu dicoba dengan gitar sungguhan, terutama ketepatan waktu dan nada yang masih berdengung dari not sebelumnya.
 - **Tuner** (`/siswa/tuner`, `/guru/tuner`): 13 tuning (standar, Drop D, lute/vihuela, double drop D, DADGAD, open D/G/E/A/C, drop C, turun ½ dan 1 nada) + kromatik; senar dikenali otomatis atau dipilih manual; jarum −50…+50 sen, "Pas!" di ±4 sen dan tanda ✓ per senar; nada acuan A4 415–466 Hz; tombol bunyi nada contoh per senar (sintesis Karplus–Strong, akurat < 0,2 sen). Pilihan tuning dan A4 disimpan di perangkat.
@@ -281,7 +283,7 @@ Setiap tahap selesai = bisa dipakai siswa sungguhan.
 | Nama aplikasi | **Harmoni Gitar**: satu keluarga dengan LMS Harmoni. Nama tampilan tetap disimpan di `app_setting` (`studioName`) agar bisa diganti tanpa mengubah kode. Saran nama teknis: repo `harmoni-gitar`, nama Docker Compose `harmoni-gitar`, database `harmoni_gitar` (berbeda dari `harmoni` milik LMS Harmoni agar keduanya bisa berjalan bersamaan di localhost). |
 | Hosting | **Sementara localhost** dengan Docker Compose seperti LMS Harmoni. VPS + domain + Caddy menyusul. |
 | Siswa nonaktif | **Sama sekali tidak bisa masuk** (lihat 4.5). |
-| Timer rutinitas | **Default 5/10/10/10 menit**, guru bisa mengubah default dan per siswa (lihat bagian 7). |
+| Timer rutinitas | **Default 15/10/10 menit** (pemanasan & teknik/etude/lagu), guru bisa mengubah default dan per siswa (lihat bagian 7). |
 | Akun orang tua | **Belum dibuat.** Fokus ke guru dan siswa. |
 
 ### Ditunda (bukan bagian MVP)

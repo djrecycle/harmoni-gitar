@@ -32,7 +32,7 @@ export type PieceView = {
   copyrightStatus: string;
   sourceNote: string | null;
   /** Where it is used first: the lesson the piece belongs to (unitOrder null = extra material, unitSlug "tambahan"). */
-  lesson: { unitSlug: string; unitOrder: number | null; slug: string; title: string } | null;
+  lesson: { unitSlug: string; unitOrder: number | null; slug: string; title: string; kind: MapLesson["kind"] } | null;
   progress: PieceProgressView;
 };
 
@@ -110,7 +110,7 @@ async function piecesForLessons(map: MapUnit[], extras: MapLesson[], lessonFilte
       const p = bySlug.get(r.slug);
       if (!p || seen.has(p.slug)) continue;
       seen.add(p.slug);
-      out.push(toView(p, progressBy.get(p.id), { unitSlug: u.slug, unitOrder: u.order, slug: l.slug, title: l.title }));
+      out.push(toView(p, progressBy.get(p.id), { unitSlug: u.slug, unitOrder: u.order, slug: l.slug, title: l.title, kind: l.kind }));
     }
   }
   return out;

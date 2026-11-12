@@ -120,7 +120,7 @@ export async function updateStudentProfile(studentId: string, _: ActionResult, f
     guitarNotes: fd.get("guitarNotes"),
     teacherNotes: fd.get("teacherNotes"),
     customRoutine,
-    routine: customRoutine ? { warmup: fd.get("warmup"), technique: fd.get("technique"), etude: fd.get("etude"), piece: fd.get("piece") } : undefined,
+    routine: customRoutine ? { warmup: fd.get("warmup"), etude: fd.get("etude"), piece: fd.get("piece") } : undefined,
   });
   if (!p.success) return zodError(p.error, fd);
   const v = p.data;

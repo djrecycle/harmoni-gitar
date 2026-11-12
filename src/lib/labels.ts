@@ -29,6 +29,6 @@ export const LOCATIONS = ["studio", "rumah_siswa", "online"] as const;
 export type LessonLocation = (typeof LOCATIONS)[number];
 export const LOCATION_LABEL: Record<LessonLocation, string> = { studio: "Studio", rumah_siswa: "Student's home", online: "Online" };
 
-export const SEGMENT_LABEL = { warmup: "Warm-up & posture", technique: "Technique", etude: "Etude", piece: "Piece" } as const;
+export const SEGMENT_LABEL = { warmup: "Warm-up, posture & technique", etude: "Etude", piece: "Piece" } as const;
 
 export const LESSON_KIND_LABEL = { theory: "Theory", technique: "Technique", etude: "Etude", piece: "Piece", check: "Unit check" } as const;

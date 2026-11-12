@@ -29,6 +29,20 @@
       "when": 1794446060337,
       "tag": "0003_illustration_block",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794448378386,
+      "tag": "0004_merge_technique_segment",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794448991768,
+      "tag": "0005_pitch_check_run",
+      "breakpoints": true
     }
   ]
 }

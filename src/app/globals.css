@@ -146,6 +146,16 @@
   body { background: white; color: black; }
 }
 
+/*
+ * alphaTab's playback cursors have no colour of their own. The score is drawn on white paper in both themes, so the
+ * colours are fixed: a moving line on the beat (it glides in time with the tempo), a light band on the bar, and the
+ * notes being played turn blue.
+ */
+.at-cursor-bar { background: rgba(250, 204, 21, 0.22); }
+.at-cursor-beat { background: rgba(79, 70, 229, 0.9); box-shadow: 0 0 6px rgba(79, 70, 229, 0.6); }
+.at-highlight * { fill: #4f46e5; stroke: #4f46e5; }
+.at-selection div { background: rgba(79, 70, 229, 0.12); }
+
 /* Lesson illustrations (src/components/illustrations). */
 .ill-pop { transform-box: fill-box; transform-origin: center; animation: ill-pop 0.35s ease-out; }
 @keyframes ill-pop { 0% { transform: scale(1); } 45% { transform: scale(1.35); } 100% { transform: scale(1); } }

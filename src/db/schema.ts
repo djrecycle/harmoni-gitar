@@ -371,6 +371,36 @@ export const pieceProgress = pgTable(
   ],
 );
 
+/**
+ * One run of "Check my notes" (the microphone judges every note while the score plays). The client makes the id, so
+ * pausing and continuing the same run updates one row. Seen by the teacher on the student's profile.
+ */
+export const pitchCheckRun = pgTable(
+  "pitch_check_run",
+  {
+    id: uuid("id").primaryKey(),
+    studentId: text("student_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    pieceId: uuid("piece_id")
+      .notNull()
+      .references(() => piece.id, { onDelete: "cascade" }),
+    bpm: smallint("bpm").notNull(),
+    notesRight: smallint("notes_right").notNull(),
+    notesTotal: smallint("notes_total").notNull(),
+    /** 0–100: notesRight / notesTotal. */
+    score: smallint("score").notNull(),
+    /** Bars played when only a part was looped (1-based, inclusive); null = from the start. */
+    loopFrom: smallint("loop_from"),
+    loopTo: smallint("loop_to"),
+    ...timestamps,
+  },
+  (t) => [
+    index("pitch_check_run_student_idx").on(t.studentId, t.createdAt),
+    check("pitch_check_run_counts", sql`${t.notesTotal} > 0 and ${t.notesRight} between 0 and ${t.notesTotal} and ${t.score} between 0 and 100`),
+  ],
+);
+
 export const unitCheck = pgTable(
   "unit_check",
   {

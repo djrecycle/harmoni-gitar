@@ -13,23 +13,30 @@ import { Select, Textarea } from "@/components/ui/input";
 import { Progress } from "@/components/ui/misc";
 import { audioTime, scheduleChime, unlockAudio } from "@/lib/audio";
 import { SEGMENT_LABEL } from "@/lib/labels";
-import { ROUTINE_KEYS, type RoutineSegments } from "@/lib/routine";
+import { ROUTINE_KEYS, type RoutineKey, type RoutineSegments } from "@/lib/routine";
 import { GENERAL_BPM_KEY } from "@/lib/practice-keys";
 import { cn, shortLabel } from "@/lib/utils";
 import { useT } from "@/i18n/client";
 
-type Key = (typeof ROUTINE_KEYS)[number];
+type Key = RoutineKey;
 
 const SEGMENT_HINT: Record<Key, string> = {
-  warmup: "Sit up straight, check your posture, and move your fingers slowly.",
-  technique: "Technique from your lesson: rest stroke / free stroke, block position, open strings.",
-  etude: "The exercise you are learning now. Slowly, two bars at a time.",
+  warmup: "Sit up straight, check your posture, then the technique exercise from your lesson: rest stroke / free stroke, block position, open strings.",
+  etude: "The etude you are learning now. Slowly, two bars at a time.",
   piece: "The piece you are learning. Play it through without stopping.",
 };
 
+/** What the piece picker offers per segment, and what it says when the lessons have none of that kind yet. */
+const PIECE_GROUPS: { key: Key | null; label: string; none?: string }[] = [
+  { key: "warmup", label: "Technique exercises", none: "There is no technique exercise in your lessons yet. Practise with the metronome." },
+  { key: "etude", label: "Etudes", none: "There is no etude in your lessons yet. Practise with the metronome, or pick another piece." },
+  { key: "piece", label: "Songs", none: "There is no song in your lessons yet. Practise with the metronome." },
+  { key: null, label: "Other" },
+];
+
 /** Timer state, saved in localStorage so a reload or a closed tab does not lose the session. */
 type State = {
-  v: 2;
+  v: 3;
   startedAt: string | null;
   index: number;
   /** Milliseconds spent per segment, not counting the current run. */
@@ -42,10 +49,12 @@ type State = {
   maxBpm: Record<string, number>;
   /** The piece picked next to the metronome. */
   pieceId: string;
+  /** The segment whose piece was last chosen automatically (each segment starts with its own kind of piece). */
+  autoIndex: number | null;
 };
 
 const fresh = (n: number, pieceId = GENERAL_BPM_KEY): State => ({
-  v: 2,
+  v: 3,
   startedAt: null,
   index: 0,
   spent: Array(n).fill(0),
@@ -54,6 +63,7 @@ const fresh = (n: number, pieceId = GENERAL_BPM_KEY): State => ({
   endedAt: null,
   maxBpm: {},
   pieceId,
+  autoIndex: null,
 });
 
 export type PracticePiece = {
@@ -65,7 +75,15 @@ export type PracticePiece = {
   fileUrl: string;
   defaultBpm: number;
   stageBpm: Record<"1" | "2" | "3", number>;
+  /** The segment it is practised in (from the kind of its lesson); null = any. */
+  segment: Key | null;
 };
+
+/** The piece for a segment: the first of its kind with stages still to reach, else the newest one. */
+function pieceFor(pieces: PracticePiece[], key: Key): string | null {
+  const of = pieces.filter((p) => p.segment === key);
+  return (of.find((p) => p.stage < 3) ?? of.at(-1))?.id ?? null;
+}
 
 const mmss = (ms: number) => {
   const s = Math.max(0, Math.round(ms / 1000));
@@ -87,13 +105,14 @@ export function RoutineTimer({
   pieces?: PracticePiece[];
 }) {
   const t = useT();
-  const { warmup, technique, etude, piece } = routine;
+  const { warmup, etude, piece } = routine;
   const segments = useMemo(() => {
-    const r: RoutineSegments = { warmup, technique, etude, piece };
+    const r: RoutineSegments = { warmup, etude, piece };
     return ROUTINE_KEYS.filter((k) => r[k] > 0).map((k) => ({ key: k, ms: r[k] * 60_000 }));
-  }, [warmup, technique, etude, piece]);
+  }, [warmup, etude, piece]);
   const storageKey = `hg-practice-${userId}`;
-  const defaultPieceId = pieces.at(-1)?.id ?? GENERAL_BPM_KEY;
+  // Before starting, show the piece of the first segment.
+  const defaultPieceId = (segments[0] && pieceFor(pieces, segments[0].key)) ?? GENERAL_BPM_KEY;
   const [state, setState] = useState<State | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [savedMinutes, setSavedMinutes] = useState<number | null>(null);
@@ -114,12 +133,11 @@ export function RoutineTimer({
 
   // Restore a session from this device (only if it is from the last 24 hours and the segments still match).
   useEffect(() => {
-    // Start with the newest piece the student has (the one they are most likely working on).
     let s = fresh(segments.length, defaultPieceId);
     try {
       const raw = localStorage.getItem(storageKey);
       const saved = raw ? (JSON.parse(raw) as State) : null;
-      if (saved?.v === 2 && saved.spent?.length === segments.length && saved.startedAt && Date.now() - Date.parse(saved.startedAt) < 86_400_000) s = saved;
+      if (saved?.v === 3 && saved.spent?.length === segments.length && saved.startedAt && Date.now() - Date.parse(saved.startedAt) < 86_400_000) s = saved;
     } catch {
       /* storage unavailable */
     }
@@ -138,6 +156,18 @@ export function RoutineTimer({
   }, [state, storageKey]);
 
   const running = Boolean(state?.runningSince) && !state?.finished;
+
+  // Every segment starts with its own kind of piece: technique exercise, etude, or song. The student can still pick
+  // another one during the segment.
+  const startedAt = state?.startedAt;
+  const segIndex = state?.index;
+  const autoIndex = state?.autoIndex;
+  useEffect(() => {
+    if (!startedAt || segIndex === undefined || autoIndex === segIndex) return;
+    const key = segments[segIndex]?.key;
+    if (!key) return;
+    setState((s) => (s ? { ...s, autoIndex: s.index, pieceId: pieceFor(pieces, key) ?? GENERAL_BPM_KEY } : s));
+  }, [startedAt, segIndex, autoIndex, segments, pieces]);
 
   // Keep the screen on while practising (where the browser supports it).
   useEffect(() => {
@@ -396,17 +426,31 @@ export function RoutineTimer({
               {t("Piece you are practising")}
               <Select value={selected?.id ?? GENERAL_BPM_KEY} onChange={(e) => setState({ ...state, pieceId: e.target.value })}>
                 <option value={GENERAL_BPM_KEY}>{t("No piece (metronome only)")}</option>
-                {pieces.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {shortLabel(p.title)}
-                  </option>
-                ))}
+                {PIECE_GROUPS.map((g) => {
+                  const of = pieces.filter((p) => p.segment === g.key);
+                  return (
+                    of.length > 0 && (
+                      <optgroup key={g.key ?? "other"} label={t(g.label)}>
+                        {of.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {shortLabel(p.title)}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )
+                  );
+                })}
               </Select>
-              {selected && (
+              {selected ? (
                 <span className="text-xs font-normal text-muted-foreground">
                   {selected.stage >= 3 ? t("All 3 stages reached. Keep it at {0} bpm.", selected.targetBpm) : t("Next target: stage {0} at {1} bpm.", selected.stage + 1, selected.targetBpm)}
                 </span>
+              ) : (
+                !pieces.some((p) => p.segment === seg.key) && (
+                  <span className="text-xs font-normal text-muted-foreground">{t(PIECE_GROUPS.find((g) => g.key === seg.key)!.none!)}</span>
+                )
               )}
+              <span className="text-xs font-normal text-muted-foreground">{t("The piece changes by itself at every segment.")}</span>
             </label>
           )}
           {selected && pieceBpm ? (
@@ -448,6 +492,7 @@ export function RoutineTimer({
           <ScorePlayer
             key={selected.id}
             practice
+            pieceId={selected.id}
             fileUrl={selected.fileUrl}
             defaultBpm={selected.defaultBpm}
             stageBpm={selected.stageBpm}

@@ -5,7 +5,9 @@ import { Guitar, LoaderCircle, Mic, MicOff, Minus, Pause, Play, Plus, Repeat, Ro
 import { toast } from "sonner";
 import { micErrorMessage } from "@/components/audio/use-mic-pitch";
 import { Alert } from "@/components/ui/misc";
+import { savePitchCheck } from "@/app/actions/pitch-check";
 import { noteName } from "@/lib/pitch";
+import { MIN_CHECK_NOTES, pitchScore, pitchStars } from "@/lib/pitch-score";
 import type * as AlphaTabTypes from "@coderline/alphatab";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -14,6 +16,7 @@ import { usePitchCheck } from "./use-pitch-check";
 import { useT } from "@/i18n/client";
 
 type Score = AlphaTabTypes.model.Score;
+type ScrollHandler = NonNullable<AlphaTabTypes.AlphaTabApi["customScrollHandler"]>;
 
 /* Notation + tablature player (alphaTab, loaded at runtime: see ./alphatab.ts). */
 export type ScorePlayerProps = {
@@ -30,9 +33,11 @@ export type ScorePlayerProps = {
   onPlayingChange?: (playing: boolean) => void;
   /** Practice mode: "guitar sound" on/off (play along with cursor + metronome) and "check my notes" with the microphone. */
   practice?: boolean;
+  /** Set for a student: the score of every "check my notes" run is saved for this piece (the teacher sees it). */
+  pieceId?: string;
 };
 
-export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm, bpm: controlledBpm, onBpmChange, onPlayingChange, practice }: ScorePlayerProps) {
+export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm, bpm: controlledBpm, onBpmChange, onPlayingChange, practice, pieceId }: ScorePlayerProps) {
   const t = useT();
   const id = useRef(Math.random().toString(36).slice(2));
   const host = useRef<HTMLDivElement>(null);
@@ -89,9 +94,24 @@ export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm, bpm: co
         } as AlphaTabTypes.json.SettingsJson);
         api.current = a;
         setApiState(a);
+        // alphaTab scrolls the page to its cursor also when a score just loaded or the cursor moves while stopped, which
+        // jumps the page away from what the student is looking at (e.g. the practice timer, when the timer switches
+        // the piece). Keep its own scrolling (the private default handler of this version), but only while playing.
+        let scorePlaying = false;
+        const inner = () => (a as unknown as { _defaultScrollHandler?: ScrollHandler })._defaultScrollHandler;
+        a.customScrollHandler = {
+          forceScrollTo: (b) => {
+            if (scorePlaying) inner()?.forceScrollTo(b);
+          },
+          onBeatCursorUpdating: (...args) => {
+            if (scorePlaying) inner()?.onBeatCursorUpdating(...args);
+          },
+          [Symbol.dispose]: () => {},
+        };
         a.playerReady.on(() => setPlayerReady(true));
         a.playerStateChanged.on((e) => {
           const on = e.state === at.synth.PlayerState.Playing;
+          scorePlaying = on;
           setPlaying(on);
           onPlayingRef.current?.(on);
           if (on) window.dispatchEvent(new CustomEvent(PLAY_EVENT, { detail: id.current }));
@@ -144,6 +164,25 @@ export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm, bpm: co
   }, [bpm, defaultBpm, apiState]);
 
   const check = usePitchCheck({ api: apiState, track: part, bpm, playing });
+
+  // Save the run's score whenever playback stops or pauses (the same run is updated after a pause).
+  const [saved, setSaved] = useState<{ runId: string; ok: number; total: number; best: number } | null>(null);
+  const [saveError, setSaveError] = useState(false);
+  useEffect(() => {
+    const { ok, total } = check.stats;
+    if (!pieceId || !checking || playing || total < MIN_CHECK_NOTES) return;
+    if (saved && saved.runId === check.runId && saved.ok === ok && saved.total === total) return;
+    const runId = check.runId;
+    let cancelled = false;
+    savePitchCheck({ id: runId, pieceId, bpm, right: ok, total, loopFrom: loop.on ? loop.from : null, loopTo: loop.on ? loop.to : null }).then((r) => {
+      if (cancelled) return;
+      setSaveError(!r.ok);
+      if (r.ok && r.data) setSaved({ runId, ok, total, best: r.data.best });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [check.stats, check.runId, playing, checking, pieceId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setTempo = (n: number) => {
     const v = Math.max(20, Math.min(Math.round(defaultBpm * 2), Math.round(n)));
@@ -386,7 +425,7 @@ export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm, bpm: co
               </span>
               {check.stats.total > 0 && (
                 <span className="ml-auto font-semibold">
-                  {t("{0} of {1} notes right ({2}%)", check.stats.ok, check.stats.total, Math.round((check.stats.ok / check.stats.total) * 100))}
+                  {t("{0} of {1} notes right ({2}%)", check.stats.ok, check.stats.total, pitchScore(check.stats.ok, check.stats.total))}
                 </span>
               )}
               {check.stats.total > 0 && (
@@ -396,6 +435,7 @@ export function ScorePlayer({ fileUrl, defaultBpm, stageBpm, initialBpm, bpm: co
               )}
             </div>
           )}
+          {!playing && check.stats.total >= MIN_CHECK_NOTES && <PitchScoreCard ok={check.stats.ok} total={check.stats.total} saved={pieceId ? (saved?.runId === check.runId && saved.ok === check.stats.ok && saved.total === check.stats.total ? saved.best : saveError ? "error" : "saving") : null} />}
           <p className="text-xs text-muted-foreground">
             {t("Press Play and play along. Each note gets a mark: green = right, red = wrong note, grey = not heard. One note at a time works best; in a chord any of its notes counts.")}
           </p>
@@ -440,5 +480,37 @@ function Toggle({ on, onClick, children, title }: { on: boolean; onClick: () => 
     >
       {children}
     </button>
+  );
+}
+
+/** The score of a "check my notes" run, with stars, and whether it was saved for the teacher. */
+function PitchScoreCard({ ok, total, saved }: { ok: number; total: number; saved: number | "saving" | "error" | null }) {
+  const t = useT();
+  const score = pitchScore(ok, total);
+  const stars = pitchStars(score);
+  return (
+    <div className={cn("flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg px-3 py-2", stars >= 2 ? "bg-success-soft" : stars === 1 ? "bg-warning-soft" : "bg-muted")} aria-live="polite">
+      <p className="text-3xl font-extrabold tabular-nums">
+        {score}
+        <span className="text-base font-bold text-muted-foreground">/100</span>
+      </p>
+      <p className="text-xl tracking-wider" aria-label={t("{0} of 3 stars", stars)}>
+        {[0, 1, 2].map((i) => (
+          <span key={i} className={i < stars ? "" : "opacity-25 grayscale"}>
+            ⭐
+          </span>
+        ))}
+      </p>
+      <p className="min-w-0 flex-1 text-xs text-muted-foreground">
+        {t("{0} of {1} notes right.", ok, total)}{" "}
+        {saved === "saving"
+          ? t("Saving…")
+          : saved === "error"
+            ? t("The score could not be saved.")
+            : saved !== null
+              ? `${t("Saved: your teacher can see it.")} ${t("Your best on this piece: {0}.", saved)}`
+              : ""}
+      </p>
+    </div>
   );
 }

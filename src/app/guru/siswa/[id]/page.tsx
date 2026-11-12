@@ -14,13 +14,15 @@ import { getExtraLessons, getUnitCheck, getUnitMap } from "@/lib/curriculum";
 import { dayName, formatDay, shortTime } from "@/lib/dates";
 import { LOCATION_LABEL, MEETING_STATUS_LABEL, MEETING_STATUS_TONE } from "@/lib/labels";
 import { getAvailablePieces } from "@/lib/pieces";
+import { listPitchChecks } from "@/lib/pitch-checks";
+import { pitchStars } from "@/lib/pitch-score";
 import { getJournal, getPracticeStats } from "@/lib/practice";
 import { ROUTINE_KEYS } from "@/lib/routine";
 import { ASSIGNMENT_STATUS_LABEL, ASSIGNMENT_STATUS_TONE } from "@/lib/rubric";
 import { listSlots, studentMeetings } from "@/lib/schedule";
 import { requireTeacher } from "@/lib/session";
 import { getStudentOfTeacher, routineFor } from "@/lib/students";
-import { formatDate, today, plainText } from "@/lib/utils";
+import { formatDate, formatDateTime, today, plainText } from "@/lib/utils";
 import { getT } from "@/i18n/server";
 import { ProfileForm, ResetPasswordButton, TeacherCheckForm } from "./forms";
 import { PieceRows } from "./piece-rows";
@@ -41,7 +43,7 @@ export default async function StudentProfilePage({ params }: Props) {
   const t = await getT();
   const now = today();
 
-  const [map, extras, assignments, stats, journal, { routine, custom }, slots, upcoming, past] = await Promise.all([
+  const [map, extras, assignments, stats, journal, { routine, custom }, slots, upcoming, past, pitchChecks] = await Promise.all([
     getUnitMap(id),
     getExtraLessons(id),
     listTeacherAssignments(teacher.id, id),
@@ -51,6 +53,7 @@ export default async function StudentProfilePage({ params }: Props) {
     listSlots(teacher.id, id),
     studentMeetings(id, { from: now, limit: 4 }),
     studentMeetings(id, { to: now, limit: 5, order: "desc" }),
+    listPitchChecks(id, 20),
   ]);
   const goal = ROUTINE_KEYS.reduce((n, k) => n + routine[k], 0);
   const pieces = await getAvailablePieces(id, map, extras);
@@ -294,6 +297,62 @@ export default async function StudentProfilePage({ params }: Props) {
           />
         ) : (
           <p className="text-sm text-muted-foreground">{t("No pieces opened yet.")}</p>
+        )}
+      </section>
+
+      <section id="skor-nada" className="mt-10 grid scroll-mt-20 gap-3">
+        <h2 className="flex items-center gap-2 text-xl font-extrabold">
+          <Mic className="size-5 text-primary" /> {t("Note check scores")}
+        </h2>
+        <p className="text-sm text-muted-foreground">{t("From “Check my notes” on the Practice page: the microphone judges every note while the score plays. Score = notes right out of 100.")}</p>
+        {pitchChecks.length ? (
+          <>
+            <div className="flex flex-wrap gap-2">
+              {[...new Map(pitchChecks.map((r) => [r.pieceId, r.pieceTitle])).entries()].map(([pid, title]) => {
+                const best = Math.max(...pitchChecks.filter((r) => r.pieceId === pid).map((r) => r.score));
+                return (
+                  <Badge key={pid} tone={best >= 70 ? "success" : best >= 50 ? "warning" : "neutral"}>
+                    {title}: {t("best {0}", best)}
+                  </Badge>
+                );
+              })}
+            </div>
+            <div className="overflow-x-auto rounded-xl border bg-card [contain:inline-size]">
+              <table className="w-full text-sm">
+                <thead className="bg-muted text-left text-xs text-muted-foreground">
+                  <tr>
+                    <th className="px-3 py-2 font-semibold">{t("When")}</th>
+                    <th className="px-3 py-2 font-semibold">{t("Piece")}</th>
+                    <th className="px-3 py-2 text-right font-semibold">{t("Tempo")}</th>
+                    <th className="px-3 py-2 text-right font-semibold">{t("Notes right")}</th>
+                    <th className="px-3 py-2 text-right font-semibold">{t("Result")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pitchChecks.map((r) => (
+                    <tr key={r.id} className="border-t">
+                      <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">{formatDateTime(r.at)}</td>
+                      <td className="px-3 py-2">
+                        {r.pieceTitle}
+                        {r.loopFrom && <span className="text-xs text-muted-foreground"> · {t("bars {0}–{1}", r.loopFrom, r.loopTo ?? r.loopFrom)}</span>}
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums whitespace-nowrap">{r.bpm} bpm</td>
+                      <td className="px-3 py-2 text-right tabular-nums">
+                        {r.notesRight}/{r.notesTotal}
+                      </td>
+                      <td className="px-3 py-2 text-right whitespace-nowrap">
+                        <Badge tone={pitchStars(r.score) >= 2 ? "success" : pitchStars(r.score) === 1 ? "warning" : "danger"}>
+                          {r.score} {"⭐".repeat(pitchStars(r.score))}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : (
+          <p className="text-sm text-muted-foreground">{t("No note check scores yet.")}</p>
         )}
       </section>
 

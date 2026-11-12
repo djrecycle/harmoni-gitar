@@ -91,7 +91,7 @@ export const id: Record<string, string> = {
   "Default practice timer": "Durasi default timer latihan",
   "Minutes per segment for all students (now {0} minutes in total). You can set different durations for one student on their profile.":
     "Menit per segmen untuk semua siswa (sekarang total {0} menit). Durasi khusus untuk satu siswa bisa diatur di profilnya.",
-  "Warm-up & posture": "Pemanasan & postur",
+  "Warm-up, posture & technique": "Pemanasan, postur & teknik",
   Technique: "Teknik",
   Etude: "Etude",
   Piece: "Lagu",
@@ -409,13 +409,21 @@ export const id: Record<string, string> = {
 
   // Practice timer & metronome
   "Practice session": "Sesi latihan",
-  "About {0} minutes: warm-up, technique, etude, and a piece. Better a little every day than a lot once a week.":
-    "Sekitar {0} menit: pemanasan, teknik, etude, dan lagu. Lebih baik sedikit setiap hari daripada banyak seminggu sekali.",
+  "About {0} minutes: warm-up & technique, etude, and a piece. Better a little every day than a lot once a week.":
+    "Sekitar {0} menit: pemanasan & teknik, etude, dan lagu. Lebih baik sedikit setiap hari daripada banyak seminggu sekali.",
   "Segment {0} of {1}": "Segmen {0} dari {1}",
   "Segment progress": "Kemajuan segmen",
-  "Sit up straight, check your posture, and move your fingers slowly.": "Duduk tegap, periksa posturmu, dan gerakkan jari pelan-pelan.",
-  "Technique from your lesson: rest stroke / free stroke, block position, open strings.": "Teknik dari pelajaranmu: petikan apoyando / tirando, posisi blok, dawai terbuka.",
-  "The exercise you are learning now. Slowly, two bars at a time.": "Latihan yang sedang kamu pelajari. Pelan-pelan, dua birama sekali.",
+  "Sit up straight, check your posture, then the technique exercise from your lesson: rest stroke / free stroke, block position, open strings.":
+    "Duduk tegap dan periksa posturmu, lalu latihan teknik dari pelajaranmu: petikan apoyando / tirando, posisi blok, dawai terbuka.",
+  "The etude you are learning now. Slowly, two bars at a time.": "Etude yang sedang kamu pelajari. Pelan-pelan, dua birama sekali.",
+  "Technique exercises": "Latihan teknik",
+  Etudes: "Etude",
+  Songs: "Lagu",
+  Other: "Lainnya",
+  "There is no technique exercise in your lessons yet. Practise with the metronome.": "Belum ada latihan teknik di pelajaranmu. Berlatihlah dengan metronom.",
+  "There is no etude in your lessons yet. Practise with the metronome, or pick another piece.": "Belum ada etude di pelajaranmu. Berlatihlah dengan metronom, atau pilih karya lain.",
+  "There is no song in your lessons yet. Practise with the metronome.": "Belum ada lagu di pelajaranmu. Berlatihlah dengan metronom.",
+  "The piece changes by itself at every segment.": "Karya berganti sendiri di setiap segmen.",
   "The piece you are learning. Play it through without stopping.": "Lagu yang sedang kamu pelajari. Mainkan sampai habis tanpa berhenti.",
   Pause: "Jeda",
   Continue: "Lanjutkan",
@@ -1079,4 +1087,20 @@ export const id: Record<string, string> = {
   "{0} bpm · count along out loud": "{0} bpm · ikut hitung keras-keras",
   "{0} bpm · the first click is higher": "{0} bpm · bunyi pertama lebih tinggi",
   "▼ floor side (string ① is the thinnest)": "▼ sisi lantai (dawai ① paling tipis)",
+  // Note check scores (pitch_check_run)
+  "Note check scores": "Skor cek nada",
+  "From “Check my notes” on the Practice page: the microphone judges every note while the score plays. Score = notes right out of 100.":
+    "Dari “Cek nadaku” di halaman Latihan: mikrofon menilai setiap not selama partitur diputar. Skor = jumlah not benar dari 100.",
+  "best {0}": "terbaik {0}",
+  When: "Waktu",
+  "Notes right": "Not benar",
+  Result: "Skor",
+  "bars {0}–{1}": "birama {0}–{1}",
+  "No note check scores yet.": "Belum ada skor cek nada.",
+  "{0} of 3 stars": "{0} dari 3 bintang",
+  "{0} of {1} notes right.": "{0} dari {1} not benar.",
+  "The score could not be saved.": "Skor tidak bisa disimpan.",
+  "Saved: your teacher can see it.": "Tersimpan: gurumu bisa melihatnya.",
+  "Your best on this piece: {0}.": "Skor terbaikmu di karya ini: {0}.",
+  "Piece not found.": "Karya tidak ditemukan.",
 };

@@ -43,8 +43,15 @@ const matches = (heard: number, expected: number[]) => expected.some((e) => Math
  * "Check my notes": while the score plays, the microphone listens and every note of the chosen part (guitar) is
  * judged right, wrong or not heard. Monophonic: in a chord, any of its notes counts.
  */
+const newRunId = () =>
+  typeof crypto !== "undefined" && crypto.randomUUID
+    ? crypto.randomUUID()
+    : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) => (Number(c) ^ (Math.random() * 16) >> (Number(c) / 4)).toString(16));
+
 export function usePitchCheck({ api, track, bpm, playing }: { api: Api | null; track: number; bpm: number; playing: boolean }) {
   const pos = useRef({ tick: 0, at: 0 });
+  /** One id per run (from one reset to the next), so a saved score is updated, not duplicated, after a pause. */
+  const [runId, setRunId] = useState(newRunId);
   const occ = useRef(new Map<number, Occurrence>());
   const hint = useRef<AlphaTabTypes.midi.MidiTickLookupFindBeatResult | null>(null);
   const [results, setResults] = useState<Map<Beat, CheckResult>>(new Map());
@@ -119,6 +126,7 @@ export function usePitchCheck({ api, track, bpm, playing }: { api: Api | null; t
     hint.current = null;
     setResults(new Map());
     setStats({ ok: 0, total: 0 });
+    setRunId(newRunId());
   }, []);
 
   // Judge what is left when playback stops.
@@ -126,5 +134,5 @@ export function usePitchCheck({ api, track, bpm, playing }: { api: Api | null; t
     if (!playing) judge(performance.now() + 60_000);
   }, [playing, judge]);
 
-  return { mic, results, live, stats, reset };
+  return { mic, results, live, stats, reset, runId };
 }

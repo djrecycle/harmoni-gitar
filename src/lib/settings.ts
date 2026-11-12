@@ -6,7 +6,7 @@ import { DEFAULT_ROUTINE, routineSchema, type RoutineSegments } from "./routine"
 /*
  * Studio-wide settings in `app_setting` (one row per key, value = JSON object):
  *   "studio"   -> { name: string }                                    studio name shown in the app
- *   "routine"  -> { warmup, technique, etude, piece }                 default practice timer (minutes)
+ *   "routine"  -> { warmup, etude, piece }                            default practice timer (minutes)
  *   "features" -> { payments: boolean }                               feature flags (see features.ts)
  * A missing row or field falls back to the defaults below.
  */
