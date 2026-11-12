@@ -33,6 +33,7 @@ Aplikasi web untuk **siswa les gitar klasik Pak Rangga** agar bisa berlatih mand
   - Domain **harmoniclass.tech** (LMS Harmoni di musicclass.tech). HTTPS dari Caddy milik LMS Harmoni (`harmoni-caddy-1`, satu-satunya pemegang port 80/443): Caddyfile LMS punya blok `harmoniclass.tech` → `reverse_proxy 172.16.0.1:3001`. App Harmoni Gitar membuka port 3001 di `172.16.0.1` (jembatan docker0: terjangkau dari container lain di VPS, tidak dari internet). Kedua project sengaja tidak berbagi network, karena sama-sama punya service bernama `app` dan `db`.
   - HTTPS wajib: mikrofon (tuner, cek nada) hanya jalan di HTTPS.
   - Persiapan pertama di VPS: `.env.docker` baru (kata sandi dan secret baru, `BETTER_AUTH_URL=https://harmoniclass.tech`), lalu setelah deploy pertama jalankan seed kurikulum (`--profile tools run --rm tools`) dan `setup:teacher`.
+  - Backup harian di VPS (cron `/etc/cron.d/`): Harmoni Gitar 02.00 WIB → `/opt/harmoni-gitar/backups`, LMS Harmoni 02.30 WIB → `/var/backups/harmoni-lms`; masing-masing 14 terbaru. Laptop menarik keduanya dengan `scripts/pull-backups.sh` ke `~/harmoni-backups/harian` (disimpan 60 hari); `--install` memasang timer systemd user tiap 08.00.
 
 ### Yang disalin dari LMS Harmoni lalu disesuaikan
 
