@@ -43,7 +43,8 @@ fi
 
 echo "==> Menyimpan $KEEP backup terbaru"
 for pola in 'harmoni-gitar-db-*.sql.gz' 'harmoni-gitar-uploads-[0-9]*.tar.gz' 'harmoni-gitar-uploads-local-*.tar.gz'; do
-  ls -1t "$BACKUP_DIR"/$pola 2>/dev/null | tail -n +$((KEEP + 1)) | xargs -r rm -f
+  # Pola tanpa file (mis. uploads lokal di VPS) membuat ls gagal; itu bukan error.
+  { ls -1t "$BACKUP_DIR"/$pola 2>/dev/null || true; } | tail -n +$((KEEP + 1)) | xargs -r rm -f
 done
 
 echo "==> Backup selesai: $TGL"
